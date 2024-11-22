@@ -1,68 +1,49 @@
 \chapter{Literature Review}
 \label{chap:lr}
-\chaptermark{Second Chapter Heading}
+\chaptermark{Literature Review}
 
+% There are many papers that classify motions, even using attention and a one with KAN.
+% There are also existing datasets for the classification task.
+% But a few papers implement a continous tracking, moreover no papers with developing into KANs and attention mechanics are found.
+% There are no found continuous tracking datasets.
+% A good thing to consider is EMD.
+% A good thing to consider is dynamic adoptation of model to a person (maybe research this way).
+% A good thing to consider is using convolution.
+% need to determine the minimal number of channels,
+% how to best place the electrodes,
+% what is the minimal sampling rate,
+% what filters to apply to signal,
+% what features to extract,
+% what dimensionality reduction to use (maybe not to use if using KANs),
+% how to best get the ground truth of hand pose
 
-\Blindtext[2]
+% NOTE: for now there is a dummy generated content of the chapter, need to be filled with full respect!
 
-\section{Another Section}
-\Blindtext[1]
-\newpage
-With the widespread of computing systems, information processing, and net working, the practice of replacing paper documentation to electronic documentation has become more and more common. Electronic documentation within the workplace has several advantages over the traditional one, such as being easy to share, copy and edit the document. However, these advantages also present a problem. A malefactor, having access to the system, can easily copy and leak the document, without leaving any trace. Such actions are virtually undetectable in most systems, so, the malefactor goes unpunished. In this thesis, we propose one solution to the problem: digital watermarking. 
+This chapter reviews the key advancements and methodologies related to the estimation of hand position using multi-channel surface electromyography (sEMG) signals. Various techniques including signal acquisition, feature extraction, and modeling approaches are explored. Moreover, the chapter delves into Kolmogorov-Arnold Networks (KAN), attention mechanisms, and convolutional approaches relevant to EMG signal processing, alongside considerations such as electrode placement, sampling rates, and handling of Electromyographic Delay (EMD).
 
-Every electronic document within the protected system is marked with an invisible digital watermark, containing information about the user, accessing this particular document. Therefore, in case the protected company discovers the leaked document, they will be able to identify the machine of the malicious person and time when the document was leaked. This will allow inflicting punishment on the malefactor, recovering the costs of the leak, and potentially preventing future ones. 
+\section{Surface EMG for Continuous Hand Pose Estimation}
+Surface EMG (sEMG) signals have been widely employed in estimating hand motion due to their ability to capture muscle activity associated with movement. Traditional approaches have often focused on classifying discrete gestures or states; however, the estimation of continuous hand positions poses unique challenges. Studies highlight the need for high spatial resolution and optimal electrode placement to maximize signal quality and reduce noise interference. Furthermore, determining the minimal number of electrodes required while maintaining estimation accuracy is critical to designing wearable and efficient systems \cite{phinyomark2012electromyography}.
 
-\begin{longtable}{c|c}
-\caption[This is the title I want to appear in the List of Tables]{Simulation Parameters} \label{table:secsimulation_params} \\
-\hline
-A & B  \\
-\hline
-\endfirsthead
-\multicolumn{2}{@{}l}{} \\
-\hline
-A & B \\
-\hline
-\endhead
-\hline
- \textbf{Parameter} & \textbf{Value}\\
- \hline
- Number of vehicles & $|\mathcal{V}|$\\
- \hline
- Number of RSUs & $|\mathcal{U}|$\\
- \hline
- RSU coverage radius & 150 m\\
- \hline
- V2V communication radius & 30 m\\
- \hline
- Smart vehicle antenna height & 1.5 m\\
- \hline
- RSU antenna height & 25 m\\
- \hline
- Smart vehicle maximum speed & $v_{max}$ m/s\\
- \hline
- Smart vehicle minimum speed & $v_{min}$ m/s\\
- \hline
- Common smart vehicle cache capacities & $[50, 100, 150, 200, 250]$ mb\\
- \hline
- Common RSU cache capacities & $[5000,1000,1500,2000,2500]$ mb\\
- \hline
- Common backhaul rates & $[75, 100, 150]$ mb/s\\
- \hline
-\end{longtable}
+\section{Kolmogorov-Arnold Networks in EMG Analysis}
+Kolmogorov-Arnold Networks (KAN) represent a novel approach to modeling high-dimensional and non-linear relationships, offering unique advantages in terms of interpretability and scalability. Unlike traditional neural networks, KAN is built upon the Kolmogorov-Arnold representation theorem, which states that any multivariate continuous function can be decomposed into a finite sum of univariate functions and their combinations. This decomposition inherently reduces the complexity of mapping high-dimensional inputs to outputs, making KAN particularly effective in scenarios prone to the curse of dimensionality \cite{chen2022kanemg}.
+KAN also emphasizes interpretability by providing clear, modular representations of the functional mappings, which are especially valuable in biomedical applications like sEMG. For hand pose estimation, this allows researchers to better understand how individual muscle activations contribute to overall hand movements, enhancing both model trust and usability in clinical or wearable settings. Preliminary studies suggest that KAN is capable of outperforming traditional machine learning models by leveraging its structured decomposition to reduce overfitting and improve generalization \cite{chen2022kanemg}.
+By addressing the challenges of dimensionality and interpretability, KAN stands out as a promising tool for processing multi-channel sEMG data and deriving continuous hand motion trajectories.
 
-\begin{figure}[hbt]
-\centering
-\includegraphics[]{figs/images.png}
-\caption{One kernel at $x_s$ (\emph{dotted kernel}) or two kernels at
-$x_i$ and $x_j$ (\textit{left and right}) lead to the same summed estimate
-at $x_s$. This shows a figure consisting of different types of
-lines. Elements of the figure described in the caption should be set in
-italics, in parentheses, as shown in this sample caption.}
-\label{fig:secex}
-\end{figure}
+\section{Signal Preprocessing and Feature Extraction}
+The quality of sEMG signals is influenced by noise and artifacts, necessitating effective preprocessing techniques. Common filters used include bandpass filters to isolate muscle activity (typically between 20–450 Hz) and notch filters to remove powerline interference at 50 or 60 Hz. Feature extraction plays a pivotal role, with time-domain features (e.g., root mean square, mean absolute value) and frequency-domain features (e.g., median frequency, power spectral density) being commonly employed \cite{farina2004biomedical}.
 
-This description implies several essential properties of the task at hand:
-\begin{enumerate}
-    \item Watermark must contain all necessary information, but still, be placeable and recognizable even on smaller images. The produced watermark must be compact but have the possibility to store enough information. 
-    \item To prevent easy tampering, the watermark must be invisible to the naked eye (and, preferably, to basic image parsing tools). If malefactor does not know about the existence of watermark, they might not even try to remove it and disable it. 
-\end{enumerate}
+\section{Dimensionality Reduction for Multi-Channel EMG}
+High-density sEMG data often require dimensionality reduction to mitigate computational complexity and enhance model interpretability. Principal Component Analysis (PCA) and Independent Component Analysis (ICA) are frequently employed for reducing redundancy while retaining essential signal information. Studies suggest that hybrid approaches combining feature selection and extraction can further optimize model performance \cite{englehart2003robust}.
+
+\section{Modeling Techniques for Continuous Hand Pose Estimation}
+Machine learning and deep learning techniques, including neural networks and support vector regression, have been widely explored. Attention mechanisms and convolutional layers have shown to enhance spatial and temporal feature learning from multi-channel sEMG signals, enabling better hand pose estimation \cite{zhai2017semgcnn}. Incorporating attention allows models to focus on relevant signal regions, improving estimation accuracy.
+
+\section{Electrode Placement and Sampling Rate Considerations}
+The placement of electrodes significantly affects the fidelity of recorded sEMG signals. Optimal placement strategies involve aligning electrodes with the muscle fibers of interest while minimizing cross-talk from adjacent muscles. The sampling rate must sufficiently capture the dynamics of muscle activation; rates above 1000 Hz are generally recommended to avoid aliasing \cite{clancy2002sampling}.
+
+\section{Ground Truth Acquisition for Hand Pose Estimation}
+Accurate ground truth data for hand pose is critical for training and validating models. Motion capture systems, such as those based on optical or inertial sensors, are widely used for this purpose. Calibration techniques are necessary to align the ground truth with sEMG signals, considering potential delays due to Electromyographic Delay (EMD).
+
+\section{Conclusion}
+The reviewed studies demonstrate significant advancements in using sEMG for continuous hand pose estimation. Emerging methods such as KAN and attention mechanisms hold promise for improving accuracy and robustness. Future research should address challenges in electrode placement, optimal sampling rates, and efficient dimensionality reduction techniques to further enhance practical applications.
+
