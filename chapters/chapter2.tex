@@ -4,28 +4,28 @@
 
 Understanding continuous hand motion detection using surface electromyography (sEMG) is an interdisciplinary challenge that intersects biomechanics, machine learning, and neuroscience. Recent advancements in machine learning, particularly in Kolmogorov-Arnold Networks (KANs), Convolutional Neural Networks (CNNs), and attention mechanisms, offer promising avenues for analyzing the intricate patterns of sEMG signals. By synthesizing prior research, this chapter identifies existing gaps and justifies the methodological approach chosen for the current study.
 
-\subsection{Prior Work on sEMG Signal Analysis}
+\section{Prior Work on sEMG Signal Analysis}
 Surface Electromyography (sEMG) has been extensively used to decode muscle activity for applications such as prosthetics, rehabilitation, and human-machine interaction \cite{farago2022review,simao2019review,zheng2022surface}. Traditional methods rely on feature engineering, including Fourier transforms, wavelets, and other statistical approaches, to extract meaningful information from sEMG signals \cite{oladazimi2012review}. While effective in many cases, these techniques are often limited by their inability to capture the non-linear and hierarchical dependencies inherent in muscle activity data.
 
 Machine learning, particularly deep learning, has emerged as a transformative approach for overcoming these limitations. Convolutional Neural Networks (CNNs) have demonstrated superior performance in extracting features directly from raw sEMG signals without manual intervention \cite{ameri2019regression,briouza2021convolutional}. In addition, attention mechanisms have enabled models to focus on the most relevant parts of the data, enhancing interpretability and accuracy \cite{zhang2023lstm,lee2022explainable}. These advances highlight the potential of deep learning methods in addressing the complexity and variability of sEMG signals, offering improved precision in real-time decoding tasks.
 
-\subsection{Convolutional Neural Networks in sEMG Analysis}
+\section{Convolutional Neural Networks in sEMG Analysis}
 Convolutional Neural Networks (CNNs) have gained traction in the sEMG domain due to their ability to automatically extract spatial and temporal features from raw signals without explicit feature engineering. Studies have demonstrated that CNNs outperform traditional classifiers in tasks like hand gesture recognition and motion prediction \cite{briouza2021convolutional,ameri2019regression}. For example, Briouza et al. proposed a CNN-based architecture that achieved superior accuracy for wrist and finger motion classification by leveraging raw sEMG signals \cite{briouza2021convolutional}. Similarly, Ameri et al. introduced regression CNNs for simultaneous motion prediction, highlighting the ability of CNNs to capture underlying motor control information \cite{ameri2019regression}.
 
-\subsection{Attention Mechanisms in sEMG Analysis}
+\section{Attention Mechanisms in sEMG Analysis}
 Attention mechanisms, initially popularized in natural language processing, have recently been applied to sEMG analysis. These mechanisms help models focus on the most relevant parts of the input signals, thereby improving interpretability and performance. Zhang et al. introduced a dual-stage attention mechanism integrated with LSTM for hand gesture recognition, achieving high accuracy and robustness across diverse datasets \cite{zhang2023lstm}. Similarly, Lee et al. utilized attention-enhanced encoder-decoder models to estimate finger joint angles from sEMG signals, demonstrating that attention mechanisms enable better mapping between muscle activations and complex motions \cite{lee2022explainable}.
 
-\subsection{Kolmogorov-Arnold Networks and sEMG Analysis}
+\section{Kolmogorov-Arnold Networks and sEMG Analysis}
 While KANs have shown theoretical promise in universal approximation tasks, their application to sEMG analysis remains underexplored. The modeling of complex, nonlinear relationships inherent in sEMG data is critical for accurately decoding muscle activations, as highlighted by recent studies on advanced machine learning approaches \cite{farago2022review}. Kolmogorov-Arnold Networks (KANs), known for their capability to approximate high-dimensional nonlinear functions with theoretical guarantees of universality \cite{liu2024kan}, present a promising yet untapped opportunity for sEMG applications. Despite their potential, no studies have explicitly integrated KANs for continuous hand motion detection, leaving a significant gap that this research seeks to address.
 
-\subsection{Addressing Challenges in sEMG Motion Estimation}
+\section{Addressing Challenges in sEMG Motion Estimation}
 Continuous hand motion estimation is particularly challenging due to signal variability, noise, and the need for high temporal resolution. Signal variability arises from differences in muscle activation patterns across individuals and tasks, as well as environmental noise, which complicates accurate motion prediction \cite{farago2022review}. High temporal resolution is essential for real-time applications such as prosthetics and human-machine interaction, where small delays can significantly impact usability \cite{oskoei2007myoelectric}.
 
 While Convolutional Neural Networks (CNNs) have demonstrated their ability to extract spatial and temporal features directly from raw sEMG signals, they often struggle to handle the inherent non-linearity and non-stationarity of the signals on their own \cite{ameri2019regression}. Attention mechanisms, on the other hand, have shown promise in improving focus on relevant portions of sEMG data, enhancing interpretability and performance \cite{zhang2023lstm,lee2022explainable}.
 
 A unified approach that leverages the interpretability of Kolmogorov-Arnold Networks (KANs), the feature extraction power of CNNs, and the focus-enhancing properties of attention mechanisms could provide a significant breakthrough.
 
-\subsection{Research Gap and Proposed Methodology}
+\section{Research Gap and Proposed Methodology}
 Despite the progress in sEMG analysis, the combination of KANs, CNNs, and attention mechanisms remains unexplored. This gap motivates the current research, which aims to integrate these techniques to achieve robust and accurate continuous hand motion estimation. By leveraging the strengths of each method — KANs for modeling complex relationships, CNNs for feature extraction, and attention mechanisms for signal relevance weighting — the proposed approach intends to advance the state of the art.
 
 \section{Conclusion}
