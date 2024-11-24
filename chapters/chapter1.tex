@@ -1,112 +1,42 @@
 \chapter{Introduction}
 \label{chap:intro}
-\chaptermark{Optional running chapter heading}
-\section{Spacing \& Type}
-\label{sec:section}
+\chaptermark{Introduction}
 
-This is a section. This is a citation without brackets. and this is one with brackets \cite{A}. Multiple \cite{A,B,C} Here's a reference to a subsection: \ref{sec:subsection}. Citation of an online article \cite{D}. Citation of an online proceeding \cite{F}. The body of the text and abstract must be double-spaced except for footnotes or long quotations. Fonts such as Times Roman, Bookman, New Century Schoolbook, Garamond, Palatine, and Courier are acceptable and commonly found on most computers. The same type must be used throughout the body of the text. The font size must be 10 point or larger and footnotes\footnote{This is a footnote.} must be two sizes smaller than the text\footnote{This is another footnote.} but no smaller than eight points. Chapter, section, or other headings should be of a consistent font and size throughout the ETD, as should labels for illustrations, charts, and figures.
+\section{Background}
+Surface Electromyography (sEMG) is a non-invasive technique that records the electrical activity of muscles during contraction, providing valuable insights into muscle function. It is widely applied in fields such as prosthetics, rehabilitation, and human-machine interaction, where accurate decoding of muscle activity is crucial for controlling devices or understanding motor impairments \cite{farago2022review}. Surface EMG signals, however, present challenges due to their complex, nonlinear, and non-stationary nature, as well as the presence of noise and variability across individuals and tasks \cite{zia2018multiday, parajuli2019real}.
 
-\subsection{Creating a Subsection}
-\label{sec:subsection}
+Recent advancements in machine learning, particularly deep learning, have revolutionized sEMG analysis by enabling automatic feature extraction and improved performance \cite{zhang2023lstm,ameri2019regression}. Convolutional Neural Networks (CNNs) have shown promise in decoding spatial and temporal features directly from raw sEMG data, while attention mechanisms provide interpretability and selective focus on relevant signal components \cite{lee2022explainable}. Despite these advancements, a comprehensive and robust solution for continuous hand motion estimation remains elusive.
 
-\subsubsection{Creating a Subsubsection}
-\subsubsection{Creating a Subsubsection}
-\subsubsection{Creating a Subsubsection}
+\section{Novelty and Research Gap}
+Despite significant progress, continuous hand motion estimation using sEMG remains a complex challenge due to signal variability, noise, and the need for high temporal resolution to support real-time applications \cite{farago2022review, zia2018multiday}. Kolmogorov-Arnold Networks (KANs), renowned for their capacity to approximate high-dimensional and nonlinear functions, offer a promising yet underexplored approach for addressing these complexities \cite{liu2024kan}.
 
-\paragraph{This is a heading level below subsubsection}
+This research addresses the gap by proposing a unified framework that integrates KANs, CNNs, and attention mechanisms to achieve accurate and robust continuous hand motion estimation. The novelty lies in leveraging the complementary strengths of these methods — KANs for universal approximation, CNNs for automatic feature extraction, and attention mechanisms for adaptive focus.
 
-And this is a quote: 
-%
-\begin{quote}
-\blindtext
-\end{quote}
+\section{Purpose and Objectives}
+The primary objective of this research is to develop a novel approach for continuous hand motion estimation using sEMG signals. The specific objectives are:
+\begin{enumerate}
+    \item To explore the application of Kolmogorov-Arnold Networks (KANs) for modeling the nonlinear and dynamic nature of sEMG signals.
+    \item To integrate CNNs and attention mechanisms into the framework to enhance feature extraction and focus on relevant signal patterns.
+    \item To evaluate the proposed approach on benchmark sEMG datasets for accuracy, robustness, and real-time applicability.
+\end{enumerate}
 
-\begin{figure}[hbt]
-\centering
-\includegraphics[]{figs/images.png}
-\caption{One kernel at $x_s$ (\emph{dotted kernel}) or two kernels at
-$x_i$ and $x_j$ (\textit{left and right}) lead to the same summed estimate
-at $x_s$. This shows a figure consisting of different types of
-lines. Elements of the figure described in the caption should be set in
-italics, in parentheses, as shown in this sample caption.}
-\label{fig:example}
-\end{figure}
+\section{Research Questions}
+This study aims to answer the following research questions:
+\begin{itemize}
+    \item How can Kolmogorov-Arnold Networks (KANs) be applied to sEMG signal analysis for continuous hand motion estimation?
+    \item What advantages does a unified approach combining KANs, CNNs, and attention mechanisms offer over existing methods?
+    \item Can the proposed framework achieve real-time applicability while maintaining accuracy and robustness?
+\end{itemize}
 
-This is a table:
-% currsize is not set in the long table environment, so we need to set it before we set it up.
-\makeatletter
-\let\@currsize\normalsize
-\makeatother
+\section{Significance and Implications}
+This research has significant implications for fields such as prosthetics and rehabilitation, where precise and reliable decoding of muscle activity is critical. By addressing the limitations of existing methods, the proposed framework could enhance the usability and functionality of sEMG-based systems, enabling more natural and intuitive control of devices. Furthermore, the findings could inform future research on integrating advanced neural networks for biomedical signal analysis.
 
-% tabular environments are set to be single-spaced in the  thesis class,  but long tables do not use tabular
-% to get around this, set the spacing to single spacing at the start of the long table environment, and set it back to double-spacing at the end of it
-
-\begin{longtable}{c|c|c}
-\caption[This is the title I want to appear in the List of Tables]{This Is a Table Example} \label{tab:pfams} \\
-\hline
-A & B & C \\
-\hline
-\endfirsthead
-\multicolumn{3}{@{}l}{} \\
-\hline
-A & B & C\\
-\hline
-\endhead
-a1 & b1 & c1 \\
-a2 & b2 & c2\\
-a3 & b3 & c3\\
-a4 & b4 & c4\\
-\hline
-\end{longtable}
-
-The package ``upgreek'' allows us to use non-italicized lower-case greek letters. See for yourself: $\upbeta$, $\bm\upbeta$, $\beta$, $\bm\beta$. Next is a numbered equation:
-\begin{align}
-\label{eq:name}
-\|\bm{X}\|_{2,1}={\underbrace{\sum_{j=1}^nf_j(\bm{X})}_{\text{convex}}}=\sum_{j=1}^n\|\bm{X}_{.,j}\|_2
-\end{align}
-The reference to equation (\ref{eq:name}) is clickable. 
-\section[Theorems, Corollaries, Lemmas, Proofs, Remarks, Definitions and Examples]{Theorems, Corollaries, Lemmas, Proofs, Remarks, Definitions,and Examples}
-
-\begin{theorem}
-\label{thm:onlytheorem}
-\blindtext
-\end{theorem}
-
-\begin{proof}
-I'm a (very short) proof.
-\end{proof}
-
-\begin{lemma}
-I'm a lemma.
-\end{lemma}
-
-\begin{corollary}
-I include a reference to Thm. \ref{thm:onlytheorem}.
-\end{corollary}
-
-\begin{proposition}
-I'm a proposition.
-\end{proposition}
-
-\begin{remark}
-I'm a remark. 
-\end{remark}
-
-\begin{definition}
-I'm a definition. I'm a definition. I'm a definition. I'm a definition. I'm a definition. I'm a definition. I'm a definition. I'm a definition. I'm a definition. I'm a definition. I'm a definition. 
-\end{definition}
-
-\begin{example}
-I'm an example.
-\end{example}
-
-
-\section[Optional table of contents heading]{Section with\\ linebreaks in\\the
-name}
-
-
-\Blindtext[2]
-
-
-
-
+\section{Structure of the Paper}
+The remainder of this thesis is organized as follows:
+\begin{itemize}
+    \item \textbf{Chapter 2}: Provides a comprehensive review of related work in sEMG analysis, highlighting the challenges and existing solutions.
+    \item \textbf{Chapter 3}: Describes the methodology, including the design and integration of KANs, CNNs, and attention mechanisms.
+    \item \textbf{Chapter 4}: Presents the experimental setup and results, evaluating the performance of the proposed framework.
+    \item \textbf{Chapter 5}: Discusses the implications of the findings and concludes with directions for future research.
+    \item \textbf{Chapter 6}: Concludes the study by summarizing key insights, highlighting contributions, and discussing limitations and potential avenues for future research.
+\end{itemize}
