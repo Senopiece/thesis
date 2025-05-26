@@ -2,41 +2,53 @@
 \label{chap:intro}
 \chaptermark{Introduction}
 
-\section{Background}
-Surface Electromyography (sEMG) is a non-invasive technique that records the electrical activity of muscles during contraction, providing valuable insights into muscle function. It is widely applied in fields such as prosthetics, rehabilitation, and human-machine interaction, where accurate decoding of muscle activity is crucial for controlling devices or understanding motor impairments \cite{farago2022review}. Surface EMG signals, however, present challenges due to their complex, nonlinear, and non-stationary nature, as well as the presence of noise and variability across individuals and tasks \cite{zia2018multiday, parajuli2019real}.
+\section{Background and Motivation}
 
-Recent advancements in machine learning, particularly deep learning, have revolutionized sEMG analysis by enabling automatic feature extraction and improved performance \cite{zhang2023lstm,ameri2019regression}. Convolutional Neural Networks (CNNs) have shown promise in decoding spatial and temporal features directly from raw sEMG data, while attention mechanisms provide interpretability and selective focus on relevant signal components \cite{lee2022explainable}. Despite these advancements, a comprehensive and robust solution for continuous hand motion estimation remains elusive.
+Surface electromyography (sEMG) has emerged as a key technique for interpreting human muscular activity, with wide applications in prosthetics, human-computer interaction, and rehabilitation \cite{zheng2022surface, simao2019review}. However, accurate hand pose estimation from sEMG signals remains a challenging task due to the complexity of muscular activation patterns and the variability in signal interpretation across users and tasks \cite{farago2022review, zia2018multiday}.
+
+Existing datasets used for sEMG-based hand pose estimation often emphasize inter-subject generalization, focusing on short and structured sessions with a limited number of predefined gestures \cite{salter2024emg2pose}. While this approach suits some applications, it fails to explore the boundary of intra-subject generalization across a broader set of complex, continuous hand motions.
+
+A significant limitation lies in the available multimodal dataset capturing systems that combine EMG with 3D hand tracking. High-end solutions, such as the EMG2Pose system \cite{salter2024emg2pose}, rely on 26 professional-grade motion capture cameras, resulting in cost and complexity levels that are prohibitive for most research labs. At the other end of the spectrum, low-cost setups often fail to meet essential requirements — for example, they may operate at suboptimal sampling rates (e.g., below 2kHz) or lack synchronized, continuous hand tracking altogether \cite{nasri2020semg}.
+
+As a result, there is a lack of accessible and capable systems that provide both high-quality sEMG data (at least 6 channels, 12bit $\geq$2\,kHz) and accurate, real-time hand tracking at 30fps or higher \cite{graf2023combining}. These limitations hinder the ability to collect long-duration, high-fidelity datasets suitable for evaluating detailed hand pose estimation models under realistic conditions.
+
+This work addresses these limitations by proposing a cost-effective, synchronized, and high-quality multimodal data acquisition system and a novel modeling technique tailored for spatiotemporally-rich sEMG signals.
 
 \section{Novelty and Research Gap}
-Despite significant progress, continuous hand motion estimation using sEMG remains a complex challenge due to signal variability, noise, and the need for high temporal resolution to support real-time applications \cite{farago2022review, zia2018multiday}. Kolmogorov-Arnold Networks (KANs), renowned for their capacity to approximate high-dimensional and nonlinear functions, offer a promising yet underexplored approach for addressing these complexities \cite{liu2024kan}.
 
-This research addresses the gap by proposing a unified framework that integrates KANs, CNNs, and attention mechanisms to achieve accurate and robust continuous hand motion estimation. The novelty lies in leveraging the complementary strengths of these methods — KANs for universal approximation, CNNs for automatic feature extraction, and attention mechanisms for adaptive focus.
+The primary contribution of this thesis is a new approach to modeling sEMG signals called \textit{Spatiotemporal Sampling}. Unlike traditional models that use fixed windows and treat all channels equally, our method dynamically learns both the temporal window and the spatial activation pattern across EMG channels. This allows the model to compute an inference output based on the similarity between a learned spatiotemporal pattern and the signal content within a contextually learned window. The term \textit{sampling} in this context refers to the adaptive extraction of signal segments in both space (across channels) and time.
+
+Complementing this model, we have developed a novel data acquisition pipeline that integrates:
+\begin{itemize}
+    \item Continuous 30fps tracking of finger joint angles using triangulated projections from MediaPipe Hands across multiple cameras.
+    \item Real-time inverse kinematics computation for full 3D hand pose reconstruction.
+    \item A custom-built, cost-effective EMG acquisition system with six channels sampled at 2kHz.
+\end{itemize}
+
+Together, these contributions address a crucial gap in current research: the lack of systems that allow testing hand pose estimation models under longer, richer intra-user sessions with diverse motion sets. To demonstrate the broad applicability of the proposed model, it was evaluated both on this newly collected dataset and on an existing public dataset.
 
 \section{Purpose and Objectives}
-The primary objective of this research is to develop a novel approach for continuous hand motion estimation using sEMG signals. The specific objectives are:
+
+The purpose of this thesis is to explore and validate a novel modeling and data acquisition framework for sEMG-based hand pose estimation that enables:
+\begin{itemize}
+    \item Learning flexible, informative spatiotemporal features from multichannel sEMG signals.
+    \item Capturing hand motion data aligned with sEMG activity through a cost-efficient system.
+    \item Investigating the limits of intra-user generalization over prolonged and varied motion sequences.
+    \item Benchmarking the proposed model on both existing datasets and newly collected data.
+\end{itemize}
+
+To achieve this, the specific objectives include:
 \begin{enumerate}
-    \item To explore the application of Kolmogorov-Arnold Networks (KANs) for modeling the nonlinear and dynamic nature of sEMG signals.
-    \item To integrate CNNs and attention mechanisms into the framework to enhance feature extraction and focus on relevant signal patterns.
-    \item To evaluate the proposed approach on benchmark sEMG datasets for accuracy, robustness, and real-time applicability.
+    \item Designing and implementing the Spatiotemporal Sampling model.
+    \item Developing a synchronized multimodal hand tracking and EMG capture system.
+    \item Conducting long-session experiments to collect a novel dataset with diverse motion patterns.
+    \item Evaluating the model on both the new dataset and a public benchmark dataset.
 \end{enumerate}
 
-\section{Research Questions}
-This study aims to answer the following research questions:
-\begin{itemize}
-    \item How can Kolmogorov-Arnold Networks (KANs) be applied to sEMG signal analysis for continuous hand motion estimation?
-    \item What advantages does a unified approach combining KANs, CNNs, and attention mechanisms offer over existing methods?
-    \item Can the proposed framework achieve real-time applicability while maintaining accuracy and robustness?
-\end{itemize}
-
 \section{Significance and Implications}
-This research has significant implications for fields such as prosthetics and rehabilitation, where precise and reliable decoding of muscle activity is critical. By addressing the limitations of existing methods, the proposed framework could enhance the usability and functionality of sEMG-based systems, enabling more natural and intuitive control of devices. Furthermore, the findings could inform future research on integrating advanced neural networks for biomedical signal analysis.
 
-\section{Structure of the Paper}
-The remainder of this thesis is organized as follows:
-\begin{itemize}
-    \item \textbf{Chapter 2}: Provides a comprehensive review of related work in sEMG analysis, highlighting the challenges and existing solutions.
-    \item \textbf{Chapter 3}: Describes the methodology, including the design and integration of KANs, CNNs, and attention mechanisms.
-    \item \textbf{Chapter 4}: Presents the experimental setup and results, evaluating the performance of the proposed framework.
-    \item \textbf{Chapter 5}: Discusses the implications of the findings and concludes with directions for future research.
-    \item \textbf{Chapter 6}: Concludes the study by summarizing key insights, highlighting contributions, and discussing limitations and potential avenues for future research.
-\end{itemize}
+This thesis presents a new approach for modeling temporal and spatial characteristics of sEMG signals for hand pose estimation. The proposed method uses spatiotemporal sampling to extract a learned pattern from multichannel EMG input and measure its similarity to the signal within a learned temporal window.
+
+In parallel, the introduced dataset capture system bridges a critical gap between cost, usability, and data fidelity. It enables researchers and developers to collect high-quality EMG and motion data without relying on prohibitively expensive commercial setups \cite{quivira2018translating}.
+
+Testing the proposed model on both a public dataset and the custom-built multimodal dataset provides an initial evaluation of its performance and applicability under different data collection conditions. These developments contribute to the broader research efforts in wearable systems, personalized rehabilitation, and human-machine interaction.
