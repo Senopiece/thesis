@@ -20,7 +20,14 @@ To address the limitations identified above, this thesis introduces two key cont
 
 To bridge the gap in modeling approaches that rely on computationally intensive architectures and lack explicit control over temporal alignment, this thesis introduces a novel technique called \textit{Spatiotemporal Sampling}. While conventional models—such as convolutional layers followed by MLPs—can capture localized features in EMG signals, they often do so at the cost of higher computational complexity and less interpretable temporal structure. In contrast, the proposed approach dynamically learns both the optimal temporal context and the most relevant spatial activation patterns across channels in a lightweight and efficient manner. The model computes predictions by comparing the current input to a learned spatiotemporal signature, allowing for faster training, reduced inference cost, and more compact parameterization. The term \textit{sampling} in this context refers to the selective, learned extraction of signal segments in both time and space, enabling the model to focus on the most informative patterns while maintaining robustness and adaptability to signal variability.
 
-The concept of spatiotemporal sampling was motivated by the physiological phenomenon known as electromechanical delay (EMD)—the latency between muscle activation and observable movement \cite{ngeo2014continuous}. In this work, we operate under the assumption that the \textit{Observed EMD} can be expressed as:
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\textwidth]{sps.drawio.png}
+    \caption{Spatiotemporal Sampling.}
+    \label{fig:sps}
+\end{figure}
+
+The concept of spatiotemporal sampling was motivated by the physiological phenomenon known as electromechanical delay (EMD) — the latency between muscle activation and observable movement \cite{ngeo2014continuous}. In this work, we operate under the assumption that the \textit{Observed EMD} can be expressed as:
 \[
 \text{Observed EMD} = \text{Natural EMD} + \text{Pose Input Lag} - \text{Signal Input Lag}
 \]
