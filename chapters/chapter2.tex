@@ -14,13 +14,21 @@ In response, several researchers have explored attention-based and adaptive mode
 
 A number of public datasets have been developed for training and benchmarking sEMG-based models. The \textbf{NinaPro} dataset family is among the most widely used, offering synchronized sEMG and kinematic glove data for a variety of gestures \cite{zia2018multiday}. While valuable, NinaPro focuses on short, predefined movements and generalization across subjects, which makes it less suited for intra-subject studies involving longer, continuous sessions.
 
-The \textbf{EMG2Pose} dataset introduced a large-scale, high-resolution multimodal dataset for fine-grained pose regression \cite{salter2024emg2pose}. It includes synchronized 3D motion capture and EMG recordings, offering unprecedented quality. However, the system setup involves 26 professional OptiTrack cameras and high-end Delsys sensors, resulting in a prohibitively expensive configuration for most academic labs.
+The \textbf{EMG2Pose} dataset introduced a large-scale, high-resolution multimodal dataset for fine-grained pose regression \cite{salter2024emg2pose}. It includes synchronized 3D motion capture and EMG recordings, offering unprecedented quality. However, the system setup involves 26 professional OptiTrack cameras and high-end Delsys sensors, resulting in a prohibitively expensive configuration for most academic labs. Notably, EMG2Pose and other successful works in continuous hand tracking consistently use high-fidelity acquisition setups, typically recording sEMG at sampling rates of 2,kHz with at least 12-bit resolution \cite{salter2024emg2pose, zanghieri2023semg, lee2022explainable}. These parameters are critical to preserve fine-grained muscle activation patterns and temporal precision required for accurate joint angle estimation. As a result, this configuration has become the de facto standard in the field for high-resolution EMG-to-pose applications.
 
 At the other end of the spectrum, several low-cost or DIY setups exist, often based on consumer-grade devices like the Myo armband or custom EMG acquisition boards (e.g., based on Arduino or ADS1299 ICs) \cite{nasri2020semg}. These systems typically suffer from limitations such as:
 \begin{itemize}
-    \item Insufficient sampling rates (e.g., below 12bit 2\,kHz),
-    \item Lack of synchronized, continuous hand tracking at 30\,fps or higher \cite{graf2023combining},
+    \item Insufficient sampling rates (e.g., below 12bit 2,kHz),
+    \item Lack of synchronized, continuous hand tracking at 30,fps or higher \cite{graf2023combining},
 \end{itemize}
+
+\section{3D Hand Tracking with MediaPipe}
+
+MediaPipe has emerged as a robust and accessible framework for 3D hand tracking, gaining traction in both academic and applied research domains. It offers real-time, markerless tracking using standard RGB cameras and supports a wide range of deployment configurations due to its platform-agnostic architecture. Unlike commercial alternatives such as Leap Motion and VR headsets, which are limited by proprietary hardware and fixed interaction volumes, MediaPipe enables \textit{unbounded spatial scaling}, making it ideal for flexible experimental setups.
+
+Several studies have validated the accuracy and robustness of MediaPipe in diverse scenarios. For instance, \cite{reimer2023evaluation} demonstrated that MediaPipe maintains stable tracking performance up to 2.75 meters, outperforming Oculus Quest and Leap Motion in multi-user and large-scale environments. In comparative tests on finger joint angle tracking, MediaPipe achieved a lower root mean square error (RMSE) of 10.9\textdegree{} versus 14.7\textdegree{} for Leap Motion, highlighting its superior precision in kinematic analysis \cite{maggioni2025optimisation}. Moreover, its adoption in recent deep learning pipelines for sEMG-based gesture recognition further underscores its suitability for high-quality data acquisition \cite{lee2022explainable}.
+
+These advantages make MediaPipe an increasingly attractive alternative to traditional motion tracking systems, particularly in domains requiring scalable, cost-effective, and accurate 3D hand pose estimation.
 
 \section{Deep Learning Models for EMG-to-Pose Estimation}
 
