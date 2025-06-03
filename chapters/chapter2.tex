@@ -42,12 +42,36 @@ Early deep learning approaches demonstrated the effectiveness of CNNs and RNNs f
 
 All the above models were evaluated under a common framework in the EMG2Pose study, after training on the large-scale benchmark dataset (\textasciitilde{}80 million frames from 193 people). The results underscore several points: (1) modeling \textit{temporal dynamics} explicitly (as VEMG2Pose does) can improve smoothness and accuracy of pose predictions, (2) sufficient model capacity and training data are critical for generalization -- the high-density SensingDynamics achieved excellent accuracy on limited data (per-user) but was outperformed on a broad dataset, and (3) \textit{interpretability mechanisms} (as seen in NeuroPose variants) are increasingly important for understanding and improving EMG-to-pose mappings. Building on these insights, our work incorporates adaptive spatio-temporal selection mechanisms that learn to emphasize the most informative signal components for each instance, aiming to further improve intra-user generalization and enhance the robustness of EMG--pose decoding.
 
-\section{Research Gap}
+\section{Research Gap and Questions}
 
-From the review above, two major gaps emerge:
-\begin{enumerate}
-    \item \textbf{Modeling:} Few works jointly learn where (in time) and what (in channel space) to attend to in sEMG signals. Most deep models use fixed-length windows and treat all channels equally. The concept of learned \textit{spatiotemporal sampling} remains largely unexplored in sEMG modeling.
-    \item \textbf{Data Acquisition:} There is no publicly available, cost-effective dataset acquisition system that provides both high-frequency sEMG data and synchronized 3D hand tracking at sufficient frame rates \cite{seo2024posture}.
-\end{enumerate}
+Despite growing interest in sEMG-based hand pose estimation, key limitations persist in both model design and data acquisition practices. This thesis addresses these by proposing a new modeling framework and building an accessible multimodal dataset acquisition pipeline.
 
-This thesis addresses both gaps: by proposing a model that learns to extract informative spatiotemporal segments from EMG, and by building a custom synchronized EMG+vision capture system that balances affordability and data fidelity.
+\subsection*{Gap 1: Absence of Joint Spatiotemporal Feature Selection in EMG Modeling}
+
+Current deep learning approaches typically rely on fixed-length temporal windows and uniform channel processing. While effective to a degree, such methods lack explicit control over where and when to extract information from the signal. They do not leverage physiological timing cues like electromechanical delay or adapt to localized channel relevance across hand motions. This reduces interpretability and may introduce unnecessary computation.
+
+To address this, we propose a novel technique — \textit{Spatiotemporal Sampling} — that learns both the temporal context and spatial activation pattern most relevant to the task.
+
+\textbf{RQ1:} How can we design a model that learns to extract informative temporal slices and spatial activation patterns from multichannel sEMG signals?
+
+\textbf{RQ2:} How can the formulation of spatiotemporal sampling incorporate assumptions about electromechanical delay and signal alignment to guide window selection?
+
+\subsection*{Gap 2: Lack of Cost-Effective, High-Quality Systems for Multimodal Data Acquisition}
+
+Most existing multimodal datasets for EMG-based motion analysis rely on expensive motion capture systems or sacrifice temporal resolution and synchronization. This creates a barrier to scalable data collection, especially for long-duration, continuous, intra-subject recording scenarios. As a result, models lack training data reflective of realistic use cases.
+
+To overcome this, we propose a low-cost acquisition system that combines MediaPipe-based 3D tracking and custom EMG hardware into a synchronized pipeline.
+
+\textbf{RQ3:} What hardware and software design choices enable synchronized acquisition of high-frequency sEMG signals and 3D hand pose data using affordable components?
+
+\textbf{RQ4:} How can we structure a dataset collection process to capture long, continuous, and natural hand motion sessions aligned with sEMG activity?
+
+\subsection*{Gap 3: Underexplored Intra-Subject Generalization in Continuous Motion}
+
+Most public datasets emphasize inter-subject generalization on short, gesture-based tasks. However, many real-world applications — such as rehabilitation or personalized interfaces — require robust tracking within a single subject across varying, continuous motion patterns.
+
+The proposed dataset explicitly targets this gap through long-session intra-user recordings, paired with a modeling approach designed to adapt to subtle within-user signal variations.
+
+\textbf{RQ5:} How can a dataset be collected and structured to support the study of intra-subject generalization under realistic, continuous hand movements?
+
+\textbf{RQ6:} What properties should a modeling framework possess to leverage such intra-subject variability effectively during training and inference?
