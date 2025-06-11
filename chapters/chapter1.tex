@@ -18,7 +18,7 @@ Consequently, there is a shortage of user-friendly and effective systems that ca
 
 To overcome the obstacles outlined above, this research proposes two major contributions: a novel method for interpreting sEMG signals and a cost-efficient system for collecting multimodal data, specifically tailored for capturing real-world, unrestricted hand movements, with the goal of achieving consistent results across a diverse array of intricate and unrestricted hand motions.
 
-To address the issue of disparity in modeling approaches that heavily rely on computationally intensive architectures and lack precise control over temporal synchronization, this work introduces a novel technique called \textit{Spatiotemporal Sampling}. While conventional models — such as CNN where suited for dynamic pattern recognition, they often do so at the cost of higher computational complexity and less interpretable temporal structure. In contrast, the proposed approach is utilizing the static nature of the important parts of the signal - it dynamically learns both the optimal temporal context and the most relevant spatial activation patterns across channels in a lightweight and efficient manner hence freezing the window on the one important window and wasting no resources on the full scan. The model computes predictions by comparing the current input to a learned spatiotemporal signature, allowing for faster training, reduced inference cost, and more compact parameterization. The term \textit{sampling} in this context refers to the selective, learned extraction of signal segments in both time and space, enabling the model to focus on the most informative patterns while maintaining robustness and adaptability to signal variability.
+To address the issue of disparity in modeling approaches that heavily rely on computationally intensive architectures and lack precise control over temporal synchronization, this work introduces a novel technique called \textit{Spatiotemporal Sampling}. While conventional models — such as CNN where suited for dynamic pattern recognition, they often do so at the cost of higher computational complexity and less interpretable temporal structure. In contrast, the proposed approach is utilizing the static nature of the important parts of the signal - it dynamically learns both the optimal temporal context and the most relevant spatial activation patterns across channels in a lightweight and efficient manner hence freezing the window on the one important window and wasting no resources on the full scan. Features are extracted by comparing the current input to a learned spatiotemporal signature, aiming to provide reduced inference cost, faster training, and more compact parameterization. The term \textit{sampling} in this context refers to the selective, learned extraction of signal segments in both time and space, enabling the model to focus on the most informative patterns while maintaining robustness and adaptability to signal variability.
 
 \begin{figure}[H]
     \centering
@@ -46,26 +46,29 @@ To validate our approach, we will run experiments on both the newly collected da
 
 \section{Purpose and Objectives}
 
-The purpose of this thesis is to explore and validate a novel modeling and data acquisition framework for sEMG-based hand pose estimation that enables:
+The aim of this thesis is to test a new feature-extraction method and an affordable data-collection setup for sEMG-based hand-pose estimation. Specifically, we seek to
 \begin{itemize}
-    \item Learning flexible, informative spatiotemporal features from multichannel sEMG signals.
-    \item Capturing hand motion data aligned with sEMG activity through a cost-efficient system.
-    \item Investigating the limits of intra-user generalization over prolonged and varied motion sequences.
-    \item Benchmarking the proposed model on both existing datasets and newly collected data.
+    \item Let a model learn useful spatiotemporal patterns from multi-channel sEMG signals.
+    \item Gather hand-movement data that are time-aligned with sEMG readings using a cost-efficient system.
+    \item Examine how well a single-user model performs during long, unscripted motion sequences.
+    \item Train and evaluate the new featurizer on public datasets as well as on our own recordings.
 \end{itemize}
 
-To achieve this, the specific objectives include:
+To reach these goals, we will:
 \begin{enumerate}
-    \item Designing and implementing the Spatiotemporal Sampling model.
-    \item Developing a synchronized multimodal hand tracking and EMG capture system.
-    \item Conducting long-session experiments to collect a novel dataset with diverse motion patterns.
-    \item Evaluating the model on both the new dataset and a public benchmark dataset.
+    \item Design and integrate the \emph{Spatiotemporal Sampling} featurizer into the full pose-estimation pipeline.
+    \item Build a synchronized setup that records EMG and hand-tracking data simultaneously.
+    \item Run extended recording sessions to create a new dataset with varied, less predictable movements.
+    \item Benchmark the model on both the newly collected dataset and established public datasets.
 \end{enumerate}
+
 
 \section{Significance and Implications}
 
-This thesis presents a new approach for modeling temporal and spatial characteristics of sEMG signals for hand pose estimation. The proposed method uses spatiotemporal sampling to extract a learned pattern from multichannel EMG input and measure its similarity to the signal within a learned temporal window.
+This thesis presents a new approach for modeling temporal and spatial characteristics of sEMG signals for hand pose estimation. The proposed method uses spatiotemporal sampling to extract a learned pattern from multichannel EMG input and measure its similarity to the signal within a learned temporal window as well as computing other signal metrics.
 
-In parallel, the introduced dataset capture system bridges a critical gap between cost, usability, and data fidelity. It enables researchers and developers to collect high-quality EMG and motion data without relying on prohibitively expensive commercial setups \cite{quivira2018translating}.
+At the same time, the introduced dataset capture system closes a critical gap of open source affordable setup build upon laveraging extensive huristics learned on expensive setups. Which enables researchers and developers to collect high-quality EMG and motion data without relying on prohibitively expensive commercial setups with a quality data at low cost without compromizing the quality \cite{quivira2018translating}.
 
-Testing the proposed model on both a public dataset and the custom-built multimodal dataset provides an initial evaluation of its performance and applicability under different data collection conditions. These developments contribute to the broader research efforts in wearable systems, personalized rehabilitation, and human-machine interaction.
+At the same time, our capture system fills an important gap: it is open-source, low-cost, and built on heuristics borrowed from high-end rigs. Which enables, researchers and developers can record high-quality EMG and motion data without paying for pricey commercial equipment, keeping costs down while maintaining signal fidelity.
+
+By running the model on a well-known public dataset and on our own multimodal dataset, we get a first look at how well it works under different recording setups. Together, these results push forward the ongoing research on practical uses of surface electromyography.
