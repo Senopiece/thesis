@@ -1,55 +1,45 @@
 \chapter{Methodology}
 \label{chap:met}
 
-\section{Hand Tracking System Implementation}
+The overall workflow is organized into two major phases: first, building our own multimodal dataset; second, training and benchmarking several EMG-to-pose models on both public data and the new recordings.
 
-The final system architecture integrates a \textbf{4-camera MediaPipe-based setup} for real-time 3D hand tracking. Cameras were strategically positioned to maximize coverage and minimize occlusions. This multi-view configuration enabled accurate spatial reconstruction of continuous hand movements.
+\section{Phase 1 — In-House Dataset Acquisition}
 
-We used \textit{MediaPipe Hands} to extract 2D keypoints of a single hand independently from each camera view. These 2D projections were then triangulated across the four perspectives to estimate 3D joint positions. This method provided scalable and precise 3D pose reconstruction using only standard RGB video inputs.
+\begin{enumerate}[label=\textbf{1.\arabic*.}, wide=0pt, leftmargin=*]
+    \item \textbf{Design a Hand-Tracking Subsystem}\\
+          Select — and if necessary assemble — a vision pipeline capable of estimating 3-D hand pose at interactive frame rates.  The exact hardware layout is flexible: options range from a single depth sensor to a small multi-camera rig running marker-less tracking.  The key requirements are decent spatial coverage, low latency, and an open interface for downstream synchronization.
+    \item \textbf{Develop an sEMG Capture Unit and Software}\\
+          Build or adapt a wearable EMG device that samples multiple forearm channels at a sufficiently high rate and resolution.  Provide accompanying firmware and a host application so that raw signals, timestamps, and metadata can be streamed or logged in real time.
+    \item \textbf{Synchronize and Integrate Both Streams}\\
+          Establish a common time base (either hardware triggers or software time-stamps) so that each EMG sample aligns with its corresponding hand-pose frame.  Package the paired readings into a single container format along with subject notes, electrode maps, and camera parameters.
+    \item \textbf{Record Continuous, Natural Sessions}\\
+          Use the integrated setup to collect long, free-form recordings that capture everyday hand movements rather than short, scripted gestures.  These sessions constitute the new dataset used later for training and evaluation.
+\end{enumerate}
 
-Compared to single-sensor configurations like Leap Motion or closed VR headsets, this setup offered significantly greater spatial flexibility and more consistent data quality. The triangulated 3D keypoints were then temporally aligned with sEMG signals to form the multimodal dataset used in our supervised learning pipeline.
+\section{Phase 2 — Model Design, Training, and Evaluation}
 
-TODO
-further: cameras calibration (special two-sided calibration pattern, quad pov that surpasses stereo), hand normalization, inverse kinematics (with euristics fixing anatomy), real time interactive 3d hand visualization and all this in a optimized pipeline
+\begin{enumerate}[label=\textbf{2.\arabic*.}, wide=0pt, leftmargin=*]
 
-Referencing other chapters \ref{chap:lr}, \ref{chap:met}, \ref{chap:impl}, \ref{chap:eval} and \ref{chap:conclusion}
-\begin{longtable}{c|c}
-\caption[This is the title I want to appear in the List of Tables]{Simulation Parameters} \label{table:thisimulation_params} \\
-\hline
-A & B  \\
-\hline
-\endfirsthead
-\multicolumn{2}{@{}l}{} \\
-\hline
-A & B \\
-\hline
-\endhead
-\hline
- \textbf{Parameter} & \textbf{Value}\\
- \hline
- Number of vehicles & $|\mathcal{V}|$\\
- \hline
- Number of RSUs & $|\mathcal{U}|$\\
- \hline
- RSU coverage radius & 150 m\\
- \hline
- V2V communication radius & 30 m\\
- \hline
- Smart vehicle antenna height & 1.5 m\\
- \hline
- RSU antenna height & 25 m\\
- \hline
- Smart vehicle maximum speed & $v_{max}$ m/s\\
- \hline
- Smart vehicle minimum speed & $v_{min}$ m/s\\
- \hline
- Common smart vehicle cache capacities & $[50, 100, 150, 200, 250]$ mb\\
- \hline
- Common RSU cache capacities & $[5000,1000,1500,2000,2500]$ mb\\
- \hline
- Common backhaul rates & $[75, 100, 150]$ mb/s\\
- \hline
-\end{longtable}
+    \item \textbf{Build Two Featuriser Variants}\\
+          \begin{enumerate}[label*=\arabic*.]
+              \item \emph{CNN Baseline} — a compact 1-D convolutional front-end followed by an LSTM or MLP head.  
+              \item \emph{STS Model} — the proposed \textit{Spatiotemporal Sampling} block replaces the CNN front-end, learning per-instance electrode and time-window weights.  
+          \end{enumerate}
 
+    \item \textbf{Hyperparameter Search Across Datasets}\\
+          \begin{enumerate}[label*=\arabic*.]
+              \item Define a common search space (learning rate, window length, channel dropout, optimiser, etc.).  
+              \item Run Bayesian or population-based search separately on the public EMG2Pose split and on the in-house dataset, logging the best configuration for each featuriser.  
+              \item Record validation metrics at each trial so that search behaviour is reproducible.
+          \end{enumerate}
 
-\ldots
+    \item \textbf{Select Best-Performing Hyperparameters}\\
+          Using the best hyperparameters obtained on the previous step, deeper explore it's fitness amongst both the public EMG2Pose split and on the in-house dataset.
+
+    \item \textbf{Comparative Analysis}\\
+          \begin{itemize}
+              \item \textit{Featuriser Effect} — contrast best CNN versus best STS on the same dataset to quantify gains from adaptive sampling.  
+              \item \textit{Dataset Effect} — contrast models trained on EMG2Pose versus those trained on the in-house data to see how well each corpus supports generalisation.  
+          \end{itemize}
+
+\end{enumerate}

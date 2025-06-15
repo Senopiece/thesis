@@ -1,4 +1,15 @@
 \chapter{Implementation}
 \label{chap:impl}
 
+\section{Hand Tracking System Implementation}
+
+The final system architecture integrates a \textbf{4-camera MediaPipe-based setup} for real-time 3D hand tracking. Cameras were strategically positioned to maximize coverage and minimize occlusions. This multi-view configuration enabled accurate spatial reconstruction of continuous hand movements.
+
+We used \textit{MediaPipe Hands} to extract 2D keypoints of a single hand independently from each camera view. These 2D projections were then triangulated across the four perspectives to estimate 3D joint positions. This method provided scalable and precise 3D pose reconstruction using only standard RGB video inputs.
+
+Compared to single-sensor configurations like Leap Motion or closed VR headsets, this setup offered significantly greater spatial flexibility and more consistent data quality. The triangulated 3D keypoints were then temporally aligned with sEMG signals to form the multimodal dataset used in our supervised learning pipeline.
+
+TODO
+further: cameras calibration (special two-sided calibration pattern, quad pov that surpasses stereo), hand normalization, inverse kinematics (with huristics fixing anatomy), real time interactive 3d hand visualization and all this in a optimized pipeline, emg capturing device design and soldering, about model implementation, dataset sampling 
+
 \ldots
