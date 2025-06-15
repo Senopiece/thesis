@@ -1,45 +1,209 @@
 \chapter{Methodology}
 \label{chap:met}
+\chaptermark{Methodology}
 
-The overall workflow is organized into two major phases: first, building our own multimodal dataset; second, training and benchmarking several EMG-to-pose models on both public data and the new recordings.
+This chapter documents all engineering steps taken to build and exploit our
+custom multimodal sEMG + hand-pose dataset. All code is MIT-licensed; the data
+are provided free of charge with no usage restrictions.
 
-\section{Phase 1 — In-House Dataset Acquisition}
+\section{Why a New Dataset?}
 
-\begin{enumerate}[label=\textbf{1.\arabic*.}, wide=0pt, leftmargin=*]
-    \item \textbf{Design a Hand-Tracking Subsystem}\\
-          Select — and if necessary assemble — a vision pipeline capable of estimating 3-D hand pose at interactive frame rates.  The exact hardware layout is flexible: options range from a single depth sensor to a small multi-camera rig running marker-less tracking.  The key requirements are decent spatial coverage, low latency, and an open interface for downstream synchronization.
-    \item \textbf{Develop an sEMG Capture Unit and Software}\\
-          Build or adapt a wearable EMG device that samples multiple forearm channels at a sufficiently high rate and resolution.  Provide accompanying firmware and a host application so that raw signals, timestamps, and metadata can be streamed or logged in real time.
-    \item \textbf{Synchronize and Integrate Both Streams}\\
-          Establish a common time base (either hardware triggers or software time-stamps) so that each EMG sample aligns with its corresponding hand-pose frame.  Package the paired readings into a single container format along with subject notes, electrode maps, and camera parameters.
-    \item \textbf{Record Continuous, Natural Sessions}\\
-          Use the integrated setup to collect long, free-form recordings that capture everyday hand movements rather than short, scripted gestures.  These sessions constitute the new dataset used later for training and evaluation.
+\begin{itemize}
+  \item \textbf{Hardware parity.} EMG2Pose uses 26 OptiTrack cameras and a
+        proprietary CTRL-labs wristband—out of reach for a \$1 000 budget.
+  \item \textbf{Temporal realism.} Public corpora favour <10 s gesture clips;
+        we require minutes-long, unscripted motion.
+  \item \textbf{Storage efficiency.} Using a custom binary format, we
+        reduce EMG2Pose`s session files to $\approx2.5\,\%$ of it's size, with no loss of
+        information.
+\end{itemize}
+
+Further instructions are a top-level overview of the overall data acquisition pipeline, for detailed instructions refer to the contents of \href{https://github.com/Senopiece/webcam_hand_triangulation/tree/v1.0}{\texttt{the repository}}. [TODO: сноска с сылкой внизу]
+
+\section{Four-Camera Hand-Pose Subsystem}
+
+\subsection{Geometry and Calibration}
+
+Four webcams (1280x800, 60 fps) are mounted around a
+\SI{1.2}{\metre}$^{3}$ workspace—three frontal views aimed at the palm and one
+dorsal view.  Accurate multi-view geometry is obtained with a \textit{radon
+checkerboard}: an \emph{asymmetric} grid printed on \textbf{both} faces of an
+A4 sheet, with extra anchor dots so the two patterns coincide perfectly when
+held up to the light.  Thanks to this dual-face design every camera can see a
+valid checkerboard in the \emph{same} shot, eliminating the 180° ambiguity of
+single-face boards.
+
+\begin{enumerate}[label=\arabic*.]
+  \item \textbf{Per-camera intrinsics}\\
+        \verb|cv::findChessboardCorners| detects the pattern in live frames
+        streaming from each webcam.  Once every camera has logged
+        $\ge12$ detections, \verb|cv::calibrateCamera| estimates the intrinsic
+        matrix $K$ and distortion coefficients~$D$ individually
+        (RMS reprojection error < \SI{0.3}{px}).
+
+  \item \textbf{Pair-wise stereo calibration}\\
+        One camera is designated the \emph{pivot}; by default the first index
+        found in \texttt{cameras.def.json5}.  For each remaining camera, the
+        script runs \verb|cv::stereoCalibrate| against the pivot while
+        \emph{fixing} the intrinsics from step 1.  
+        This yields a rotation $R$ and translation $T$ that map points from the
+        pivot’s frame to the partner camera.
+
+  \item \textbf{Write-out and visual check}\\
+        All intrinsic blocks and $R\!T$ pairs are dumped to
+        \texttt{cameras.calib.json5}.  An optional preview window shows the
+        rectified chessboard overlay on every camera so the operator can
+        visually confirm alignment before recording.
 \end{enumerate}
 
-\section{Phase 2 — Model Design, Training, and Evaluation}
+\noindent
+The current implementation relies on direct \emph{pair-wise} overlaps with the
+pivot camera; a note in the code highlights a future upgrade to bundle-adjust
+\emph{all} pairs for even tighter global consistency.  Nevertheless, the
+stereo-against-pivot approach already provides sub-millimetre triangulation
+accuracy at a working distance of \SI{50}{\centi\metre}, adequate for EMG-to-pose
+learning.
 
-\begin{enumerate}[label=\textbf{2.\arabic*.}, wide=0pt, leftmargin=*]
+\subsection{Landmark Triangulation \& Real-Time IK}
+MediaPipe Hands detects 21 landmarks per retained frame (32 fps after
+alignment). Multi-view triangulation yields 3-D key-points. A hand-crafted,
+analytic inverse-kinematics solver enforces bone lengths and joint limits and works in real time.
 
-    \item \textbf{Build Two Featuriser Variants}\\
-          \begin{enumerate}[label*=\arabic*.]
-              \item \emph{CNN Baseline} — a compact 1-D convolutional front-end followed by an LSTM or MLP head.  
-              \item \emph{STS Model} — the proposed \textit{Spatiotemporal Sampling} block replaces the CNN front-end, learning per-instance electrode and time-window weights.  
-          \end{enumerate}
+\section{sEMG Acquisition Hardware}
 
-    \item \textbf{Hyperparameter Search Across Datasets}\\
-          \begin{enumerate}[label*=\arabic*.]
-              \item Define a common search space (learning rate, window length, channel dropout, optimiser, etc.).  
-              \item Run Bayesian or population-based search separately on the public EMG2Pose split and on the in-house dataset, logging the best configuration for each featuriser.  
-              \item Record validation metrics at each trial so that search behaviour is reproducible.
-          \end{enumerate}
+\subsection{Electrode Montage}
+Twelve Ag/AgCl electrodes form four bipolar channels + reference:
 
-    \item \textbf{Select Best-Performing Hyperparameters}\\
-          Using the best hyperparameters obtained on the previous step, deeper explore it's fitness amongst both the public EMG2Pose split and on the in-house dataset.
-
-    \item \textbf{Comparative Analysis}\\
-          \begin{itemize}
-              \item \textit{Featuriser Effect} — contrast best CNN versus best STS on the same dataset to quantify gains from adaptive sampling.  
-              \item \textit{Dataset Effect} — contrast models trained on EMG2Pose versus those trained on the in-house data to see how well each corpus supports generalisation.  
-          \end{itemize}
-
+\begin{enumerate}[label=\alph*]
+  \item \textbf{FDS} - \emph{Flexor Digitorum Superficialis}: the main finger-flexor mass on the palmar-ulnar side; activates when the fingers close.
+  \item \textbf{FCR} - \emph{Flexor Carpi Radialis}: wrist flexor on the palmar-radial side; contributes to wrist flexion and radial deviation.
+  \item \textbf{EDC} - \emph{Extensor Digitorum Communis}: dorsal-radial finger extensors; drives finger extension and assists in wrist extension.
+  \item \textbf{ECU} - \emph{Extensor Carpi Ulnaris}: dorsal-ulnar wrist extensor; extends the wrist and produces ulnar deviation.
 \end{enumerate}
+
+\subsection{Electronics}
+\begin{itemize}
+  \item Six Bioelectronic-Circuit amps connected to Seeeduino Xiao (12-bit ADC).
+  \item Sampling: \SI{2048}{Hz} x 4 channels.
+  \item Streaming: USB 2.0 CDC, sustained $\approx \SI{2}{\mega\bit\per\second}$.
+  \item No analogue or digital filtering at capture; any filtering is delegated
+        to downstream models.
+\end{itemize}
+
+\section{Dataset Infrastructure}
+\begin{itemize}
+    \item \textbf{Real-time I/O optimisations}.  
+          The capture software is build around a multithreaded
+          worker-pool design. Careful use of mutexes and ring buffers resolved
+          the synchronisation hazards that arise when high-rate EMG and video
+          streams are written concurrently to disk.
+    \item \textbf{Compact session format}.  
+          Each recording session is stored as a single ZIP archive containing
+          \textbf{YAML metadata} plus proprietary binary segments for EMG and
+          pose.  Compared with an HDF5 dump of the same content, the archive
+          shrinks disk usage by roughly \textbf{40x}. The public EMG2Pose
+          corpus was re-encoded into this layout so that all datasets share one
+          structure.
+\end{itemize}
+
+\subsection{Synchronized Recording}
+
+\begin{itemize}
+  \item Cameras run at 60 fps; every second frame is kept 32 fps pose stream.
+  \item Exactly 64 EMG samples (\SI{31.3}{ms}) align to each pose frame. The
+        logger polls the \emph{latest} camera image at each 64-sample boundary.
+  \item Timestamp jitter is negligible; no interpolation is
+        applied for alignment.
+\end{itemize}
+
+\subsection{Session Format}
+
+\paragraph{Layout}
+
+\begin{verbatim}
+session.zip/
+  metadata.yml
+  recordings/
+    1/segments/1 2 …
+    2/segments/1 2 …
+\end{verbatim}
+
+\paragraph{Segment Binary Layout}
+
+Each \texttt{segments/N} file contains a sequence of tuples:
+
+\[
+\bigl[
+  [\underbrace{20\! \times\! \text{float32}}_{\text{pose}},
+   \underbrace{64\!\times\!4}_{\text{EMG}}\text{ float32}],
+  \dots,
+  \underbrace{20\! \times\! \text{float32}}_{\text{sigma frame}}
+\bigr]
+\]
+
+The final 20-value \emph{sigma frame} holds the last pose sample that is not coupled with EMG.
+
+\subsection{Quality Control}
+
+The capture application shows
+
+\begin{enumerate}[label=\alph*]
+    \item \textbf{EMG oscilloscope}.  
+          Scrolling plots of each channel allow the operator to verify signal amplitude, baseline drift, and electrode contact before and during recording.
+    \item \textbf{Session control panel}.  
+          A GUI window exposes start/stop buttons and a built-in timer that counts elapsed recording time, reducing annotation errors.
+    \item \textbf{Interactive 3-D hand preview}.  
+          A interactive (rotate/zoom) viewer renders the triangulated skeleton so occlusions or tracking drop-outs can be spotted immediately.
+\end{enumerate}
+
+Immediate feedback helps catch loose electrodes or camera drop-outs.
+
+\subsection{Interpolation \& Resampling Strategy}
+
+\paragraph{Pose formats.}
+The loader supports two 20-angle representations:
+
+\begin{itemize}
+  \item \textbf{UmeTrack} — the 20-DOF joint-angle vector used in the original
+        EMG2Pose release.  For strict comparability with that work, we keep the
+        original \emph{linear} interpolation.
+  \item \textbf{AnatomicAngles} — our own 20-angle layout, reordered to match
+        surface-EMG anatomy.  Here we adopt \textbf{Akima splines}, which give
+        smoother, overshoot-free trajectories well suited to biomechanical
+        data.
+\end{itemize}
+
+\paragraph{Kernel benchmark.}
+Five interpolants were timed on a 250→1000-frame up-sample test:
+
+\begin{center}\small
+\begin{tabular}{@{}lcc@{}}
+\toprule
+Scheme            & Time (ms) & Visual verdict \\ \midrule
+Linear            & 1.0  & robotic, piecewise-constant velocity \\
+\textbf{Akima}    & 6.4  & smooth, no overshoot (chosen) \\
+Monotone cubic    & 8.3  & smooth but noticeably slower \\
+Cubic spline      & 6.7  & severe overshoot at peaks \\
+B-spline          & 9.3  & same overshoot issue, slowest \\ \bottomrule
+\end{tabular}
+\end{center}
+
+Akima offers the best trade-off between speed and anatomical plausibility.
+
+\paragraph{Loader-time resampling.}
+Raw pose is stored exactly as captured at 32 fps.  
+When a model requests a different label rate (\{16, 32, 64, 128\} fps),
+the dataset class resamples on the fly:
+
+\begin{itemize}
+  \item \textbf{UmeTrack} → linear interpolation,
+  \item \textbf{AnatomicAngles} → Akima interpolation.
+\end{itemize}
+
+No interpolation is applied during live capture or camera–EMG alignment;
+resampling is purely an offline, loader-side convenience.
+
+
+
+
+TODO: about dataset split on the model side, model description
