@@ -347,20 +347,16 @@ Within each sequence the network steps forward autoregressively, updating its
 own context exactly as it would at run time. Only after the entire rollout is
 finished is the composite loss evaluated:
 
-\begin{multline*}
-\mathcal{L} =
-\underbrace{\mathrm{MSE}_{\text{lm}}(\hat L, L)}_{\text{landmark position}}
-+
-\underbrace{\mathrm{MSE}_{\text{lm}}(\Delta\hat L, \Delta L)}_{\text{velocity}} \\
-+
-\underbrace{\mathrm{MSE}_{\text{lm}}(\Delta^{2}\hat L, \Delta^{2}L)}_{\text{acceleration}}
-+
-\text{L}_{1} + \text{L}_{2} \text{ regularisation}.
-\end{multline*}
-
+\begin{align*}
+\mathcal{L} =\;&
+\underbrace{k_0\mathrm{MSE}_{\text{lm}}(\hat L, L)}_{\text{landmark position}} \\
+&+ \underbrace{k_1\mathrm{MSE}_{\text{lm}}(\Delta \hat L, \Delta L)}_{\text{velocity}} \\
+&+ \underbrace{k_2\mathrm{MSE}_{\text{lm}}(\Delta^{2} \hat L, \Delta^{2} L)}_{\text{acceleration}} \\
+&+ k_3\text{L}_{1} + k_4\text{L}_{2}
+\end{align*}
 
 Here \(L(\cdot)\) denotes 3-D landmarks recovered via a forward-kinematics layer
-compatible with the chosen pose format. The positional term drives spatial
+compatible with the chosen pose format. $\text{L}_{1} / \text{L}_{2}$ are standard Lasso and Ridge terms. The positional term drives spatial
 accuracy, while the velocity and acceleration terms penalize jitter and
 encourage dynamical consistency. Parameter regularization keeps the model
 compact and reduces over-fitting.
