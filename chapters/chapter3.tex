@@ -83,12 +83,14 @@ Twelve Ag/AgCl electrodes form four bipolar channels + reference:
 
 \subsection{Electronics}
 \begin{itemize}
-  \item Six Bioelectronic-Circuit amps connected to Seeeduino Xiao (12-bit ADC).
+  \item Four Bioelectronic-Circuit amps connected to Seeeduino Xiao (12-bit ADC).
   \item Sampling: \SI{2048}{Hz} x 4 channels.
   \item Streaming: USB 2.0 CDC, sustained $\approx \SI{2}{\mega\bit\per\second}$.
   \item No analogue or digital filtering at capture; any filtering is delegated
         to downstream models.
 \end{itemize}
+
+This setup is capable of capturing high-quality EMG signals and has shown it's usefulness in our previous work \cite{nasybullin2024methodology}.
 
 \section{Dataset Infrastructure}
 \begin{itemize}
