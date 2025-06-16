@@ -109,16 +109,6 @@ Twelve Ag/AgCl electrodes form four bipolar channels + reference:
           structure.
 \end{itemize}
 
-\subsection{Synchronized Recording}
-
-\begin{itemize}
-  \item Cameras run at 60 fps; every second frame is kept 32 fps pose stream.
-  \item Exactly 64 EMG samples (\SI{31.3}{ms}) align to each pose frame. The
-        logger polls the \emph{latest} camera image at each 64-sample boundary.
-  \item Timestamp jitter is negligible; no interpolation is
-        applied for alignment.
-\end{itemize}
-
 \subsection{Session Format}
 
 \paragraph{Layout}
@@ -145,6 +135,16 @@ Each \texttt{segments/N} file contains a sequence of tuples:
 \]
 
 The final 20-value \emph{sigma frame} holds the last pose sample that is not coupled with EMG. That is representing the overall intuition of what each patch of the data time alignment is -- meaning that emg timestamp is always captured between pose frames.
+
+\subsection{Synchronized Recording}
+
+\begin{itemize}
+  \item Cameras run at 60 fps; every second frame is kept 32 fps pose stream.
+  \item Exactly 64 EMG samples (\SI{31.3}{ms}) align to each pose frame. The
+        logger polls the \emph{latest} camera image at each 64-sample boundary.
+  \item Timestamp jitter is negligible; no interpolation is
+        applied for alignment.
+\end{itemize}
 
 \subsection{Quality Control}
 
