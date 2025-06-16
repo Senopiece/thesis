@@ -18,7 +18,7 @@ are provided free of charge with no usage restrictions.
         information.
 \end{itemize}
 
-(An end-to-end tutorial that reproduces every step related to dataset acquisition is included in the top-level README of \href{https://github.com/Senopiece/emg_hand_pose_dataset_capture/tree/v1.0}{this repository}\footnote{\url{https://github.com/Senopiece/emg_hand_pose_dataset_capture/tree/v1.0}}.)
+(An end-to-end tutorial that reproduces every step related to hardware soldering, dataset acquisition is included in the top-level README of \href{https://github.com/Senopiece/emg_hand_pose_dataset_capture/tree/v1.0}{this repository}\footnote{\url{https://github.com/Senopiece/emg_hand_pose_dataset_capture/tree/v1.0}}.)
 
 \section{Four-Camera Hand-Pose Subsystem}
 
@@ -71,16 +71,6 @@ analytic inverse-kinematics solver enforces bone lengths and joint limits and wo
 
 \section{sEMG Acquisition Hardware}
 
-\subsection{Electrode Montage}
-Twelve Ag/AgCl electrodes form four bipolar channels + reference:
-
-\begin{enumerate}[label=\alph*]
-  \item \textbf{FDS} - \emph{Flexor Digitorum Superficialis}: the main finger-flexor mass on the palmar-ulnar side; activates when the fingers close.
-  \item \textbf{FCR} - \emph{Flexor Carpi Radialis}: wrist flexor on the palmar-radial side; contributes to wrist flexion and radial deviation.
-  \item \textbf{EDC} - \emph{Extensor Digitorum Communis}: dorsal-radial finger extensors; drives finger extension and assists in wrist extension.
-  \item \textbf{ECU} - \emph{Extensor Carpi Ulnaris}: dorsal-ulnar wrist extensor; extends the wrist and produces ulnar deviation.
-\end{enumerate}
-
 \subsection{Electronics}
 \begin{itemize}
   \item Four Bioelectronic-Circuit amps connected to Seeeduino Xiao (12-bit ADC).
@@ -91,6 +81,18 @@ Twelve Ag/AgCl electrodes form four bipolar channels + reference:
 \end{itemize}
 
 This setup is capable of capturing high-quality EMG signals and has shown it's usefulness in our previous work \cite{nasybullin2024methodology}.
+
+\subsection{Electrode Montage}
+TODO: image
+
+Twelve Ag/AgCl electrodes form four bipolar channels + reference:
+
+\begin{enumerate}[label=\alph*]
+  \item \textbf{FDS} - \emph{Flexor Digitorum Superficialis}: the main finger-flexor mass on the palmar-ulnar side; activates when the fingers close.
+  \item \textbf{FCR} - \emph{Flexor Carpi Radialis}: wrist flexor on the palmar-radial side; contributes to wrist flexion and radial deviation.
+  \item \textbf{EDC} - \emph{Extensor Digitorum Communis}: dorsal-radial finger extensors; drives finger extension and assists in wrist extension.
+  \item \textbf{ECU} - \emph{Extensor Carpi Ulnaris}: dorsal-ulnar wrist extensor; extends the wrist and produces ulnar deviation.
+\end{enumerate}
 
 \section{Dataset Infrastructure}
 \begin{itemize}
@@ -146,6 +148,8 @@ The final 20-value \emph{sigma frame} holds the last pose sample that is not cou
 \end{itemize}
 
 \subsection{Quality Control}
+
+TODO: image
 
 The capture application shows
 
@@ -212,6 +216,7 @@ No interpolation is applied during live capture or camera-EMG alignment;
 resampling is purely an offline, loader-side convenience.
 
 \subsection{Handling discontinuities and patch sampling.}
+TODO: image
 Real-world recordings -- especially those in EMG2Pose -- contain brief drop-outs:
 marker occlusions, IK failures, or EMG glitches that break a take into smaller
 \emph{segments}. If we naïvely extracted every possible 2-second patch from a
@@ -265,6 +270,8 @@ that:
 \end{itemize}
 
 \subsection{Inter-subject time-budget split.}
+TODO: image
+
 Unlike our required goal, even within the same session the EMG2Pose corpus contains many short recordings of discrete stage classes.
 To evaluate \emph{inter-subject} generalization we apply the time-budget logic \emph{per recording}, ensuring every stage class contributes
 a training slice and a validation slice:
