@@ -288,7 +288,191 @@ subset $\to$ per-epoch draw strategy, this produces a deterministic,
 size-matched pipeline that is fair both \emph{within} EMG2Pose and \emph{between}
 EMG2Pose and our single-record dataset.
 
+\section{Learning Architecture}
+\label{sec:model}
+
+\subsection{Interface and Autoregressive Tracking}
+
+TODO: image
+
+The network operates on a rolling window of sensory history.  
+At every step it receives
+
+\begin{itemize}
+  \item a \emph{static snapshot} of the most recent EMG slice
+        (tens of milliseconds long, covering multiple muscle bursts), and
+  \item a \emph{pose context} consisting of the last several hand poses.
+        At sequence start these poses come from ground-truth; after the first
+        prediction they are replaced by the model’s own outputs.
+\end{itemize}
+
+As soon as a new pose is produced, the context window slides forward by one
+frame: the oldest pose is discarded, the freshly predicted pose is appended,
+and the next EMG slice is read.  
+Because this loop has no internal state other than the sliding window itself,
+tracking can continue indefinitely on a live EMG stream.
+
+\subsection{Next Pose Prediction}
+
+TODO: image
+
+\begin{enumerate}[label=\arabic*.]
+  \item \textbf{EMG featuriser}.  
+        Raw multi-channel EMG is transformed into a dense activation vector.
+        Two interchangeable stems are explored.  
+        The first is a compact 1-D CNN that captures local temporal patterns;  
+        the second is an adaptive \emph{Spatiotemporal-Sampling} (STS) stem that
+        learns both where and when to attend within the EMG slice.
+  \item \textbf{Context fusion}.  
+        The EMG feature vector is concatenated with a flattened summary of the
+        pose window-positions, first differences (velocity) and second
+        differences (acceleration).  This stacked vector forms a rich snapshot
+        of "what the hand is doing now" and "how fast it is changing".
+  \item \textbf{Stateless predictor}.
+        A lightweight multilayer perceptron maps the fused snapshot to the
+        next-frame pose.  Skip connections inject the velocity-acceleration
+        sub-vector at multiple depths inside the MLP, ensuring high-frequency
+        motion cues are preserved even after several nonlinear transformations.
+        These shortcuts stabilise training and help the network respond quickly
+        to abrupt muscle activations.
+  \item \textbf{Jitter filter}.  
+        The raw prediction is combined with the existing pose context by a
+        learnable causal filter-effectively a content-aware moving average
+        whose weights are trained alongside the rest of the network.  The
+        filter damps frame-to-frame noise without introducing noticeable lag.
+\end{enumerate}
+
+\subsection{Sequence-level Training Objective}
+
+Training is performed on short sequences (e.g.\ a two-second EMG clip).  
+Within each sequence the network steps forward autoregressively, updating its
+own context exactly as it would at run time.  Only after the entire rollout is
+finished is the composite loss evaluated:
+
+\begin{multline*}
+\mathcal{L} =
+\underbrace{\mathrm{MSE}_{\text{lm}}(\hat L, L)}_{\text{landmark position}}
++
+\underbrace{\mathrm{MSE}_{\text{lm}}(\Delta\hat L, \Delta L)}_{\text{velocity}} \\
++
+\underbrace{\mathrm{MSE}_{\text{lm}}(\Delta^{2}\hat L, \Delta^{2}L)}_{\text{acceleration}}
++
+\text{L}_{1} + \text{L}_{2} \text{ regularisation}.
+\end{multline*}
 
 
+Here \(L(\cdot)\) denotes 3-D landmarks recovered via a forward-kinematics layer
+compatible with the chosen pose format.  The positional term drives spatial
+accuracy, while the velocity and acceleration terms penalize jitter and
+encourage dynamical consistency.  Parameter regularization keeps the model
+compact and reduces over-fitting.  
+Optimization uses plain gradient descent; because the network is stateless
+apart from its sliding window, no back-propagation through time is required.
 
-TODO: model description, hypers we searched
+\medskip\noindent
+In summary, the model marries a learnable EMG encoder, a skip-connected MLP,
+and a causal filter into a fully autoregressive hand-pose tracker that can
+consume continuous EMG data and produce anatomically plausible joint angles in
+real time.
+
+\subsection{Comprehensive hyper-parameter sweep}
+
+To put both featuriser families-CNN and STS-on an equal footing, we perform a
+single, unified sweep on the Weights\&Biases (W\&B) platform.  
+A Bayesian optimizer proposes configurations; each proposal trains under a
+\emph{Hyperband} early-stopping regime (a run must survive 70 iterations to
+avoid pruning and is forcibly stopped at 300).  
+Mean 3-D landmark error on a fixed validation split is the metric to minimize.
+
+\paragraph{Validation slice (fixed for fairness).}
+Regardless of dataset origin, every trial is evaluated on exactly
+
+\begin{itemize}
+  \item \textbf{36 seconds of validation footage} drawn from each recording;
+  \item a \textbf{2-second prediction horizon} inside that slice;
+  \item \textbf{256 validation patches}, of which half are sampled each epoch
+        to keep run-time reasonable while leaving the pool unchanged.
+\end{itemize}
+
+Locking these numbers removes bias due to clip density or recording length
+differences.
+
+\paragraph{Data budget and temporal resolution (swept).}
+Conversely, the optimizer may vary how much \emph{training} footage it sees and
+at what cadence:
+
+\begin{itemize}
+  \item \textbf{Training slice duration}: \SIlist{5;8;12;20;25;30}{min};
+  \item \textbf{Prediction horizon during training}: \SIlist{1;2;3;4}{s};
+  \item \textbf{Number of training patches}: 7 000 to 200 000;
+  \item \textbf{Epoch-sampling ratio}: \SIlist{1;5;10;20}{\%};
+  \item \textbf{EMG samples per video frame}: \{16, 32, 64\}  
+        (\(\approx\)\SIlist{0.25;0.5;1}{ms} resolution per sample).
+\end{itemize}
+
+\paragraph{Loss weighting and regularisation.}
+The sweep also searches:
+
+\begin{itemize}
+  \item \textbf{Position / velocity / acceleration weights}  
+        (\(\kappa_{\text{pos}},\kappa_{\text{vel}},\kappa_{\text{acc}}\))  
+        in \{0.1, 1, 10\};
+  \item \textbf{L\(_\mathbf{1}\) and L\(_\mathbf{2}\)} regularizers in
+        \(\{0,10^{-4},10^{-3},10^{-2},10^{-1},1\}\);
+  \item \textbf{Learning-rate} for Adam in \(\{10^{-2},10^{-3},10^{-4}\}\).
+\end{itemize}
+
+\paragraph{Pose context and shared MLP widths.}
+The size of the sliding pose window and the capacity of the fully connected
+stack are treated symmetrically for both stems:
+
+\begin{itemize}
+  \item \textbf{Poses in context}: \{3, 4, 8, 12, 20\};  
+        velocities and accelerations are derived on-the-fly, so a longer
+        window provides richer dynamics at the cost of more parameters.
+  \item \textbf{Layer widths} for the synapse MLP, muscle MLP, and predictor
+        hidden layer: \{32, 64, 128, 512, 1024\}.  
+        Skip connections re-inject \((\text{pose},\dot{\text{pose}},
+        \ddot{\text{pose}})\) vectors at each depth regardless of the width
+        chosen.
+\end{itemize}
+
+\paragraph{STS-specific search axes.}
+The adaptive Spatiotemporal-Sampling encoder adds:
+
+\begin{itemize}
+  \item \textbf{Number of temporal slices} and \textbf{patterns per slice}:
+        \{4, 8, 16, 32, 128, 256\};
+  \item \textbf{Slice width / stride}: \SIrange{8}{800}{ms};
+  \item \textbf{Max / Std window width / stride}:
+        \SIrange{1}{512}{ms}.
+\end{itemize}
+
+\paragraph{CNN-specific search axes.}
+When the stem is a conventional 1-D CNN, three kernel lengths are swept:
+
+\begin{itemize}
+  \item First convolution, second convolution, and output convolution are each
+        drawn from  
+        \{32, 40, 64, 80, 128, 180, 256, 320, 512, 640, 820, 1024\} samples,
+        spanning fine spike detection to half-second envelopes.
+\end{itemize}
+
+\paragraph{Dataset mixing and randomisation.}
+Every trial points to a pseudo-path  
+\texttt{/rand:\,./datasets}.  
+At launch, this resolver assembles a fresh session list that blends our own
+continuous capture with randomly chosen EMG2Pose sessions.  
+Consequently, each hyper-parameter set is vetted on \emph{the full diversity of
+subjects, hardware, and motion styles}.  
+A fixed random seed ensures reproducibility-identical W\&B IDs rerun the same
+training itinerary-while still exposing the optimiser to representative
+variance.
+
+In total, millions of theoretical combinations collapse to a practical number
+of trials thanks to Hyperband`s pruning: only promising regions of the search
+space are explored deeply, and unpromising ones are terminated early, yielding
+a compute-efficient yet thorough search.
+
+TODO: best hypers sts vs cnn separate freeze and check on multidataset
+TODO: +emg and -emg sweeps for finding the fit without EMG bias
