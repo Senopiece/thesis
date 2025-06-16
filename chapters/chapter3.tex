@@ -174,7 +174,7 @@ The loader supports two 20-angle representations:
 \end{itemize}
 
 \paragraph{Kernel benchmark.}
-Five interpolants were timed on a 250→1000-frame up-sample test:
+Five interpolation techniques were timed on a 250$\to$1000-frame up-sample test:
 
 \begin{center}\small
 \begin{tabular}{@{}lcc@{}}
@@ -196,11 +196,11 @@ When a model requests a different label rate (\{16, 32, 64, 128\} fps),
 the dataset class resamples on the fly:
 
 \begin{itemize}
-  \item \textbf{UmeTrack} → linear interpolation,
-  \item \textbf{AnatomicAngles} → Akima interpolation.
+  \item \textbf{UmeTrack} $\to$ linear interpolation,
+  \item \textbf{AnatomicAngles} $\to$ Akima interpolation.
 \end{itemize}
 
-No interpolation is applied during live capture or camera–EMG alignment;
+No interpolation is applied during live capture or camera-EMG alignment;
 resampling is purely an offline, loader-side convenience.
 
 
