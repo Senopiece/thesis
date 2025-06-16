@@ -18,7 +18,10 @@ are provided free of charge with no usage restrictions.
         information.
 \end{itemize}
 
-Further instructions are a top-level overview of the overall data acquisition pipeline, for detailed instructions refer to the contents of \href{https://github.com/Senopiece/webcam_hand_triangulation/tree/v1.0}{\texttt{the repository}}. [TODO: сноска с сылкой внизу]
+(An end-to-end tutorial that reproduces every step in this chapter is included
+in the top-level README of
+\href{https://github.com/Senopiece/emg_hand_pose_dataset_capture/tree/v1.0}{the
+capture repository}\footnote{\url{https://github.com/Senopiece/emg_hand_pose_dataset_capture/tree/v1.0}}.)
 
 \section{Four-Camera Hand-Pose Subsystem}
 
@@ -141,7 +144,7 @@ Each \texttt{segments/N} file contains a sequence of tuples:
 \bigr]
 \]
 
-The final 20-value \emph{sigma frame} holds the last pose sample that is not coupled with EMG.
+The final 20-value \emph{sigma frame} holds the last pose sample that is not coupled with EMG. That is representing the overall intuition of what each patch of the data time alignment is -- meaning that emg timestamp is always captured between pose frames.
 
 \subsection{Quality Control}
 
@@ -158,7 +161,11 @@ The capture application shows
 
 Immediate feedback helps catch loose electrodes or camera drop-outs.
 
-TODO: insert here about emg2pose convert to our format
+\subsection{Re-encoding EMG2Pose}
+Before training, the public EMG2Pose corpus is converted into this exact ZIP
+layout using \href{https://github.com/Senopiece/hand_emg_regression/blob/main/notebooks/convert_dataset.ipynb}{the Jupyter workflow}\footnote{\url{https://github.com/Senopiece/hand_emg_regression/blob/main/notebooks/convert_dataset.ipynb}}. This notebook reads the original HDF5
+files, extracts pose + EMG, and writes out ZIP packages with YAML metadata,
+ensuring both corpora share an identical structure.
 
 \subsection{Interpolation \& Resampling Strategy}
 
