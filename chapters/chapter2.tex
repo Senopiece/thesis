@@ -24,7 +24,7 @@ At the opposite end of the price range, a variety of very low-cost rigs have app
 
 \section{3D Hand Tracking with MediaPipe}
 
-MediaPipe has quickly become a favourite open-source toolkit for 3-D hand tracking in both academic studies and real-world products. Released by Google, it bundles a full graph-based vision pipeline, delivering real-time (30–60 fps) landmark detection, temporal filtering, and gesture classification from nothing more than a standard RGB camera. Because the entire framework is cross-platform -- running on desktop CPUs, mobile phones, and even tiny single-board computers -- it lowers the barrier to entry for labs and start-ups that can’t afford specialised depth sensors.
+MediaPipe is the leading open-source toolkit for 3-D hand tracking in both academic studies and real-world products. Released by Google, it bundles a full graph-based vision pipeline, delivering real-time (30–60 fps) landmark detection, temporal filtering, and gesture classification from nothing more than a standard RGB camera. Because the entire framework is cross-platform -- running on desktop CPUs, mobile phones, and even tiny single-board computers -- it lowers the barrier to entry for labs and start-ups that can’t afford specialised depth sensors.
 
 Unlike closed systems such as the Leap Motion controller or most VR headsets -- which lock users into proprietary hardware, fixed SDKs, and a cramped capture volume of roughly 0.5 - 1 m -- MediaPipe imposes no hard tracking boundary. The same model can follow hands at arm`s length, across a lab bench, or within a wide-angle studio shot, enabling what we call \textit{unbounded spatial scaling}. Its permissive licence also lets researchers tweak the network architecture, integrate domain-specific priors (e.g., EMG synchronisation), and port the solution to custom embedded boards -- fostering rapid experimentation that would be impossible on locked-down commercial stacks. In short, MediaPipe blends affordability, flexibility, and high frame-rate performance, making it an ideal backbone for our cost-efficient, multimodal data-collection system.
 
@@ -76,7 +76,7 @@ Most modern networks still rely on a fixed-length time window and treat every ch
 
 To close this gap, we introduce \textit{Spatiotemporal Sampling} -- a block that learns, straight from the data, which time slices and electrodes carry the most useful information.
 
-\textbf{RQ1.} How can a model learn to pick the right temporal snippets and spatial patterns in a multichannel sEMG stream?  
+\textbf{RQ1.} How can a model learn to pick the right temporal snippets and spatial patterns in a multichannel sEMG stream?
 
 \textbf{RQ2.} How can knowledge about electromechanical delay and signal alignment guide that sampling process?
 
@@ -86,7 +86,7 @@ Existing multimodal datasets usually depend on price-heavy motion-capture rigs o
 
 We therefore build a budget-friendly pipeline that combines MediaPipe 3-D tracking with custom EMG hardware, both locked to a shared clock.
 
-\textbf{RQ3.} Which hardware-plus-software choices allow us to record high-rate sEMG and 3-D hand pose in perfect sync, yet keep costs low?  
+\textbf{RQ3.} Which hardware-plus-software choices allow us to record high-rate sEMG and 3-D hand pose in perfect sync, yet keep costs low?
 
 \textbf{RQ4.} How should we run the data-collection sessions so that we capture long, natural hand movements aligned with sEMG?
 
@@ -96,6 +96,6 @@ Most public corpora focus on cross-user generalisation over short, scripted gest
 
 Our new dataset targets that need, recording lengthy sessions from a single user, and our model is built to adapt to the subtle changes found there.
 
-\textbf{RQ5.} How can we organise a dataset to study intra-subject generalisation under realistic, continuous hand movements?  
+\textbf{RQ5.} How can we organise a dataset to study intra-subject generalisation under realistic, continuous hand movements?
 
 \textbf{RQ6.} What traits must a model have to exploit that intra-subject variation during training and inference?

@@ -29,32 +29,32 @@ capture repository}\footnote{\url{https://github.com/Senopiece/emg_hand_pose_dat
 
 Four webcams (1280x800, 60 fps) are mounted around a
 \SI{1.2}{\metre}$^{3}$ workspace -- three frontal views aimed at the palm and one
-dorsal view.  Accurate multi-view geometry is obtained with a \textit{radon
+dorsal view. Accurate multi-view geometry is obtained with a \textit{radon
 checkerboard}: an \emph{asymmetric} grid printed on \textbf{both} faces of an
 A4 sheet, with extra anchor dots so the two patterns coincide perfectly when
-held up to the light.  Thanks to this dual-face design every camera can see a
+held up to the light. Thanks to this dual-face design every camera can see a
 valid checkerboard in the \emph{same} shot, eliminating the 180° ambiguity of
 single-face boards.
 
 \begin{enumerate}[label=\arabic*.]
   \item \textbf{Per-camera intrinsics}\\
         \verb|cv::findChessboardCorners| detects the pattern in live frames
-        streaming from each webcam.  Once every camera has logged
+        streaming from each webcam. Once every camera has logged
         $\ge12$ detections, \verb|cv::calibrateCamera| estimates the intrinsic
         matrix $K$ and distortion coefficients~$D$ individually
         (RMS reprojection error < \SI{0.3}{px}).
 
   \item \textbf{Pair-wise stereo calibration}\\
         One camera is designated the \emph{pivot}; by default the first index
-        found in \texttt{cameras.def.json5}.  For each remaining camera, the
+        found in \texttt{cameras.def.json5}. For each remaining camera, the
         script runs \verb|cv::stereoCalibrate| against the pivot while
-        \emph{fixing} the intrinsics from step 1.  
+        \emph{fixing} the intrinsics from step 1.
         This yields a rotation $R$ and translation $T$ that map points from the
-        pivot’s frame to the partner camera.
+        pivot`s frame to the partner camera.
 
   \item \textbf{Write-out and visual check}\\
         All intrinsic blocks and $R\!T$ pairs are dumped to
-        \texttt{cameras.calib.json5}.  An optional preview window shows the
+        \texttt{cameras.calib.json5}. An optional preview window shows the
         rectified chessboard overlay on every camera so the operator can
         visually confirm alignment before recording.
 \end{enumerate}
@@ -62,7 +62,7 @@ single-face boards.
 \noindent
 The current implementation relies on direct \emph{pair-wise} overlaps with the
 pivot camera; a note in the code highlights a future upgrade to bundle-adjust
-\emph{all} pairs for even tighter global consistency.  Nevertheless, the
+\emph{all} pairs for even tighter global consistency.Nevertheless, the
 stereo-against-pivot approach already provides sub-millimetre triangulation
 accuracy at a working distance of \SI{50}{\centi\metre}, adequate for EMG-to-pose
 learning.
@@ -95,15 +95,15 @@ Twelve Ag/AgCl electrodes form four bipolar channels + reference:
 
 \section{Dataset Infrastructure}
 \begin{itemize}
-    \item \textbf{Real-time I/O optimisations}.  
+    \item \textbf{Real-time I/O optimisations}.
           The capture software is build around a multithreaded
           worker-pool design. Careful use of mutexes and ring buffers resolved
           the synchronisation hazards that arise when high-rate EMG and video
           streams are written concurrently to disk.
-    \item \textbf{Compact session format}.  
+    \item \textbf{Compact session format}.
           Each recording session is stored as a single ZIP archive containing
           \textbf{YAML metadata} plus proprietary binary segments for EMG and
-          pose.  Compared with an HDF5 dump of the same content, the archive
+          pose. Compared with an HDF5 dump of the same content, the archive
           shrinks disk usage by roughly \textbf{40x}. The public EMG2Pose
           corpus was re-encoded into this layout so that all datasets share one
           structure.
@@ -151,11 +151,11 @@ The final 20-value \emph{sigma frame} holds the last pose sample that is not cou
 The capture application shows
 
 \begin{enumerate}[label=\alph*]
-    \item \textbf{EMG oscilloscope}.  
+    \item \textbf{EMG oscilloscope}.
           Scrolling plots of each channel allow the operator to verify signal amplitude, baseline drift, and electrode contact before and during recording.
-    \item \textbf{Session control panel}.  
+    \item \textbf{Session control panel}.
           A GUI window exposes start/stop buttons and a built-in timer that counts elapsed recording time, reducing annotation errors.
-    \item \textbf{Interactive 3-D hand preview}.  
+    \item \textbf{Interactive 3-D hand preview}.
           A interactive (rotate/zoom) viewer renders the triangulated skeleton so occlusions or tracking drop-outs can be spotted immediately.
 \end{enumerate}
 
@@ -173,11 +173,11 @@ ensuring both corpora share an identical structure.
 The loader supports two 20-angle representations:
 
 \begin{itemize}
-  \item \textbf{UmeTrack}  --  the 20-DOF joint-angle vector used in the original
-        EMG2Pose release.  For strict comparability with that work, we keep the
+  \item \textbf{UmeTrack} -- the 20-DOF joint-angle vector used in the original
+        EMG2Pose release. For strict comparability with that work, we keep the
         original \emph{linear} interpolation.
-  \item \textbf{AnatomicAngles}  --  our own 20-angle layout, reordered to match
-        surface-EMG anatomy.  Here we adopt \textbf{Akima splines}, which give
+  \item \textbf{AnatomicAngles} -- our own 20-angle layout, reordered to match
+        surface-EMG anatomy. Here we adopt \textbf{Akima splines}, which give
         smoother, overshoot-free trajectories well suited to biomechanical
         data.
 \end{itemize}
@@ -200,7 +200,7 @@ B-spline          & 9.3  & same overshoot issue, slowest \\ \bottomrule
 Akima offers the best trade-off between speed and anatomical plausibility.
 
 \paragraph{Loader-time resampling.}
-Raw pose is stored exactly as captured at 32 fps.  
+Raw pose is stored exactly as captured at 32 fps.
 When a model requests a different label rate (\{16, 32, 64, 128\} fps),
 the dataset class resamples on the fly:
 
@@ -215,7 +215,7 @@ resampling is purely an offline, loader-side convenience.
 \subsection{Handling discontinuities and patch sampling.}
 Real-world recordings -- especially those in EMG2Pose -- contain brief drop-outs:
 marker occlusions, IK failures, or EMG glitches that break a take into smaller
-\emph{segments}.  If we naïvely extracted every possible 2-second patch from a
+\emph{segments}. If we naïvely extracted every possible 2-second patch from a
 long train/val window, datasets with many discontinuities would yield fewer
 valid clips, biasing model comparison.
 
@@ -225,27 +225,27 @@ strategy:
 
 \begin{enumerate}[label=\arabic*.]
 
-  \item \textbf{Deliberately long windows.}  
+  \item \textbf{Deliberately long windows.}
         We first carve out generous, non-overlapping intervals -- 
         e.g.\ \texttt{train\_length} = \SI{20}{min} and
         \texttt{val\_length} = \SI{4}{min}.
         Even if a recording is peppered with short gaps, each interval still
         contains enough usable footage.
 
-  \item \textbf{Fixed patch subset.}  
+  \item \textbf{Fixed patch subset.}
         From each long interval we enumerate every admissible 2-second patch
         (sliding by one frame).
         We then \emph{randomly select a fixed number} of patches
         (\texttt{train\_patches}, \texttt{val\_patches}) -- the same count for
-        every dataset run.  
+        every dataset run.
         This normalises the effective sample size: EMG2Pose and our dataset
         each contribute the identical number of train/val clips, regardless of
         how fragmented the underlying footage is.
 
-  \item \textbf{Per-epoch sub-sampling.}  
+  \item \textbf{Per-epoch sub-sampling.}
         During training, only a percentage
         (\texttt{train\_sample\_ratio}, \texttt{val\_sample\_ratio}) of that
-        fixed patch pool is drawn each epoch.  
+        fixed patch pool is drawn each epoch.
         The subset is reshuffled every epoch (with a deterministic RNG seed per
         run) to improve stochastic coverage without changing the overall clip
         inventory.
@@ -272,9 +272,9 @@ a training slice and a validation slice:
 
 \begin{itemize}
   \item For each recording $r_{i}$ (and thus for each subject), draw  
-        a random offset, then cut  
-        \texttt{train\_length}s $\;\to\;$ \emph{train window}  
-        followed immediately by  
+        a random offset, then cut
+        \texttt{train\_length}s $\;\to\;$ \emph{train window}
+        followed immediately by
         \texttt{val\_length}s $\;\to\;$ \emph{validation window}.
   \item If a recording is too short for both windows, it is skipped; the global
         budgets are re-balanced across the remaining recordings so the overall
@@ -295,7 +295,7 @@ EMG2Pose and our single-record dataset.
 
 TODO: image
 
-The network operates on a rolling window of sensory history.  
+The network operates on a rolling window of sensory history.
 At every step it receives
 
 \begin{itemize}
@@ -303,12 +303,12 @@ At every step it receives
         (tens of milliseconds long, covering multiple muscle bursts), and
   \item a \emph{pose context} consisting of the last several hand poses.
         At sequence start these poses come from ground-truth; after the first
-        prediction they are replaced by the model’s own outputs.
+        prediction they are replaced by the model`s own outputs.
 \end{itemize}
 
 As soon as a new pose is produced, the context window slides forward by one
 frame: the oldest pose is discarded, the freshly predicted pose is appended,
-and the next EMG slice is read.  
+and the next EMG slice is read.
 Because this loop has no internal state other than the sliding window itself,
 tracking can continue indefinitely on a live EMG stream.
 
@@ -317,36 +317,36 @@ tracking can continue indefinitely on a live EMG stream.
 TODO: image
 
 \begin{enumerate}[label=\arabic*.]
-  \item \textbf{EMG featuriser}.  
+  \item \textbf{EMG featuriser}.
         Raw multi-channel EMG is transformed into a dense activation vector.
-        Two interchangeable stems are explored.  
-        The first is a compact 1-D CNN that captures local temporal patterns;  
+        Two interchangeable stems are explored.
+        The first is a compact 1-D CNN that captures local temporal patterns;
         the second is an adaptive \emph{Spatiotemporal-Sampling} (STS) stem that
         learns both where and when to attend within the EMG slice.
-  \item \textbf{Context fusion}.  
+  \item \textbf{Context fusion}.
         The EMG feature vector is concatenated with a flattened summary of the
         pose window-positions, first differences (velocity) and second
-        differences (acceleration).  This stacked vector forms a rich snapshot
+        differences (acceleration). This stacked vector forms a rich snapshot
         of "what the hand is doing now" and "how fast it is changing".
   \item \textbf{Stateless predictor}.
         A lightweight multilayer perceptron maps the fused snapshot to the
-        next-frame pose.  Skip connections inject the velocity-acceleration
+        next-frame pose. Skip connections inject the velocity-acceleration
         sub-vector at multiple depths inside the MLP, ensuring high-frequency
         motion cues are preserved even after several nonlinear transformations.
         These shortcuts stabilise training and help the network respond quickly
         to abrupt muscle activations.
-  \item \textbf{Jitter filter}.  
+  \item \textbf{Jitter filter}.
         The raw prediction is combined with the existing pose context by a
         learnable causal filter-effectively a content-aware moving average
-        whose weights are trained alongside the rest of the network.  The
+        whose weights are trained alongside the rest of the network. The
         filter damps frame-to-frame noise without introducing noticeable lag.
 \end{enumerate}
 
 \subsection{Sequence-level Training Objective}
 
-Training is performed on short sequences (e.g.\ a two-second EMG clip).  
+Training is performed on short sequences (e.g.\ a two-second EMG clip).
 Within each sequence the network steps forward autoregressively, updating its
-own context exactly as it would at run time.  Only after the entire rollout is
+own context exactly as it would at run time. Only after the entire rollout is
 finished is the composite loss evaluated:
 
 \begin{multline*}
@@ -362,10 +362,10 @@ finished is the composite loss evaluated:
 
 
 Here \(L(\cdot)\) denotes 3-D landmarks recovered via a forward-kinematics layer
-compatible with the chosen pose format.  The positional term drives spatial
+compatible with the chosen pose format. The positional term drives spatial
 accuracy, while the velocity and acceleration terms penalize jitter and
-encourage dynamical consistency.  Parameter regularization keeps the model
-compact and reduces over-fitting.  
+encourage dynamical consistency. Parameter regularization keeps the model
+compact and reduces over-fitting.
 Optimization uses plain gradient descent; because the network is stateless
 apart from its sliding window, no back-propagation through time is required.
 
@@ -378,10 +378,10 @@ real time.
 \subsection{Comprehensive hyper-parameter sweep}
 
 To put both featuriser families-CNN and STS-on an equal footing, we perform a
-single, unified sweep on the Weights\&Biases (W\&B) platform.  
+single, unified sweep on the Weights\&Biases (W\&B) platform.
 A Bayesian optimizer proposes configurations; each proposal trains under a
 \emph{Hyperband} early-stopping regime (a run must survive 70 iterations to
-avoid pruning and is forcibly stopped at 300).  
+avoid pruning and is forcibly stopped at 300).
 Mean 3-D landmark error on a fixed validation split is the metric to minimize.
 
 \paragraph{Validation slice (fixed for fairness).}
@@ -406,7 +406,7 @@ at what cadence:
   \item \textbf{Prediction horizon during training}: \SIlist{1;2;3;4}{s};
   \item \textbf{Number of training patches}: 7 000 to 200 000;
   \item \textbf{Epoch-sampling ratio}: \SIlist{1;5;10;20}{\%};
-  \item \textbf{EMG samples per video frame}: \{16, 32, 64\}  
+  \item \textbf{EMG samples per video frame}: \{16, 32, 64\}
         (\(\approx\)\SIlist{0.25;0.5;1}{ms} resolution per sample).
 \end{itemize}
 
@@ -414,8 +414,8 @@ at what cadence:
 The sweep also searches:
 
 \begin{itemize}
-  \item \textbf{Position / velocity / acceleration weights}  
-        (\(\kappa_{\text{pos}},\kappa_{\text{vel}},\kappa_{\text{acc}}\))  
+  \item \textbf{Position / velocity / acceleration weights}
+        (\(\kappa_{\text{pos}},\kappa_{\text{vel}},\kappa_{\text{acc}}\))
         in \{0.1, 1, 10\};
   \item \textbf{L\(_\mathbf{1}\) and L\(_\mathbf{2}\)} regularizers in
         \(\{0,10^{-4},10^{-3},10^{-2},10^{-1},1\}\);
@@ -427,11 +427,11 @@ The size of the sliding pose window and the capacity of the fully connected
 stack are treated symmetrically for both stems:
 
 \begin{itemize}
-  \item \textbf{Poses in context}: \{3, 4, 8, 12, 20\};  
+  \item \textbf{Poses in context}: \{3, 4, 8, 12, 20\};
         velocities and accelerations are derived on-the-fly, so a longer
         window provides richer dynamics at the cost of more parameters.
   \item \textbf{Layer widths} for the synapse MLP, muscle MLP, and predictor
-        hidden layer: \{32, 64, 128, 512, 1024\}.  
+        hidden layer: \{32, 64, 128, 512, 1024\}.
         Skip connections re-inject \((\text{pose},\dot{\text{pose}},
         \ddot{\text{pose}})\) vectors at each depth regardless of the width
         chosen.
@@ -453,18 +453,18 @@ When the stem is a conventional 1-D CNN, three kernel lengths are swept:
 
 \begin{itemize}
   \item First convolution, second convolution, and output convolution are each
-        drawn from  
+        drawn from
         \{32, 40, 64, 80, 128, 180, 256, 320, 512, 640, 820, 1024\} samples,
         spanning fine spike detection to half-second envelopes.
 \end{itemize}
 
 \paragraph{Dataset mixing and randomisation.}
-Every trial points to a pseudo-path  
-\texttt{/rand:\,./datasets}.  
+Every trial points to a pseudo-path
+\texttt{/rand:\,./datasets}.
 At launch, this resolver assembles a fresh session list that blends our own
-continuous capture with randomly chosen EMG2Pose sessions.  
+continuous capture with randomly chosen EMG2Pose sessions.
 Consequently, each hyper-parameter set is vetted on \emph{the full diversity of
-subjects, hardware, and motion styles}.  
+subjects, hardware, and motion styles}.
 A fixed random seed ensures reproducibility-identical W\&B IDs rerun the same
 training itinerary-while still exposing the optimiser to representative
 variance.
