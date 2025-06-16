@@ -476,5 +476,48 @@ of trials thanks to Hyperband`s pruning: only promising regions of the search
 space are explored deeply, and unpromising ones are terminated early, yielding
 a compute-efficient yet thorough search.
 
-TODO: best hypers sts vs cnn separate freeze and check on multidataset
-TODO: +emg and -emg sweeps for finding the fit without EMG bias
+\paragraph{Post-sweep model selection and comparative analysis.}
+Once the sweep has matured and convergence is observed across multiple promising
+trials, we terminate the hyper-parameter exploration and extract the top
+configurations for both featuriser families -- STS and CNN.
+
+These best-performing configurations are then \emph{frozen} to ensure that
+subsequent comparisons are not biased by additional tuning. With these fixed
+architectures and hyperparameters, we proceed to a broader evaluation on
+multiple sessions to study the behavior of each model type in various
+conditions.
+
+Specifically, we measure:
+
+\begin{itemize}
+  \item generalisation across different subject anatomies;
+  \item stability on long-form continuous recordings;
+  \item sensitivity to underactuated or noisy EMG input segments.
+\end{itemize}
+
+This phase allows us to qualitatively and quantitatively assess which featuriser
+is better suited to which conditions -- for instance, whether CNNs outperform on
+structured gestures, while STS provides robustness to fine-grained spontaneous
+motion.
+
+\paragraph{Ablation: EMG-free autoregression.}
+To test the hypothesis that hand pose sequences may be partially predictable
+even without EMG input -- e.g., due to biomechanical continuity -- we run a
+controlled ablation:
+
+\begin{itemize}
+  \item The model is provided with an initial sequence of hand poses (and their
+        derivatives), but no EMG context at all.
+  \item It then autoregressively predicts the next poses solely from its own
+        predictions.
+  \item Losses are measured against ground-truth pose trajectories.
+\end{itemize}
+
+We repeat this test for both our dataset and EMG2Pose recordings.
+Performance degradation in this setting quantifies how much of the hand motion
+is learnable from kinematic continuity alone -- and by contrast, how much is
+uniquely contributed by EMG signals.
+
+This final comparative round, built atop the validated hyperparameter regimes,
+provides a holistic view of model expressiveness, sensitivity, and the value of
+multimodal input.
