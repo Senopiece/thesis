@@ -81,6 +81,8 @@ Refer to \href{https://github.com/Senopiece/webcam_hand_triangulation/blob/v1.0/
 
 \section{sEMG Acquisition Hardware}
 
+TODO: image
+
 \subsection{Electronics}
 \begin{itemize}
   \item Four Bioelectronic-Circuit amps connected to Seeeduino Xiao (12-bit ADC).
@@ -93,9 +95,15 @@ Refer to \href{https://github.com/Senopiece/webcam_hand_triangulation/blob/v1.0/
 This setup is capable of capturing high-quality EMG signals and has shown it's usefulness in our previous work \cite{nasybullin2024methodology}.
 
 \subsection{Electrode Montage}
-TODO: image
 
-Twelve Ag/AgCl electrodes form four bipolar channels + reference:
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.4\textwidth]{electrodes.png}
+    \caption{Electrode Placement.}
+    \label{fig:electrodes}
+\end{figure}
+
+Twelve Ag/AgCl electrodes form four bipolar channels + reference to cover:
 
 \begin{enumerate}[label=\alph*]
   \item \textbf{FDS} - \emph{Flexor Digitorum Superficialis}: the main finger-flexor mass on the palmar-ulnar side; activates when the fingers close.
