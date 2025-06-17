@@ -65,11 +65,19 @@ accuracy at a working distance of \SI{50}{\centi\metre}, adequate for EMG-to-pos
 learning.
 
 \subsection{Landmark Triangulation \& Real-Time IK}
-TODO: image
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1.0\textwidth]{kinematics.drawio.png}
+    \caption{Kinematics.}
+    \label{fig:kinematics}
+\end{figure}
 
 MediaPipe Hands detects 21 landmarks per retained frame (32 fps after
 alignment). Multi-view triangulation yields 3-D key-points. A hand-crafted,
 analytic inverse-kinematics solver enforces bone lengths and joint limits and works in real time.
+
+Refer to \href{https://github.com/Senopiece/webcam_hand_triangulation/blob/v1.0/notebooks/kinematics.ipynb}{the notebook}\footnote{\url{https://github.com/Senopiece/webcam_hand_triangulation/blob/v1.0/notebooks/kinematics.ipynb}} to explore the kinematics more in-depth. 
 
 \section{sEMG Acquisition Hardware}
 
