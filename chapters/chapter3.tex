@@ -234,7 +234,13 @@ No interpolation is applied during live capture or camera-EMG alignment;
 resampling is purely an offline, loader-side convenience.
 
 \subsection{Inter-subject time-budget split.}
-TODO: image
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1.0\textwidth]{split.drawio.png}
+    \caption{Data Split.}
+    \label{fig:split}
+\end{figure}
 
 Unlike our required goal, even within the same session the EMG2Pose corpus contains many short recordings of discrete stage classes.
 To evaluate \emph{inter-subject} generalization we apply the time-budget logic \emph{per recording}, ensuring every stage class contributes
