@@ -233,27 +233,54 @@ the dataset class resamples on the fly:
 No interpolation is applied during live capture or camera-EMG alignment;
 resampling is purely an offline, loader-side convenience.
 
-\subsection{Handling discontinuities and patch sampling.}
+\subsection{Inter-subject time-budget split.}
 TODO: image
+
+Unlike our required goal, even within the same session the EMG2Pose corpus contains many short recordings of discrete stage classes.
+To evaluate \emph{inter-subject} generalization we apply the time-budget logic \emph{per recording}, ensuring every stage class contributes
+a training slice and a validation slice:
+
+\begin{itemize}
+  \item We aim to carve out generous, non-overlapping intervals -- 
+        e.g.\ \texttt{train\_length} = \SI{20}{min} and
+        \texttt{val\_length} = \SI{4}{min}.
+        Even if a recording is severely segmentated, each interval still contains enough usable footage.
+
+  \item For each recording $r_{i}$ (and thus for each subject), draw  
+        a random offset, then cut
+        \texttt{train\_length}s $\;\to\;$ \emph{train window}
+        followed immediately by
+        \texttt{val\_length}s $\;\to\;$ \emph{validation window}.
+
+  \item If a recording is too short for both windows, it is skipped; the global
+        budgets are re-balanced across the remaining recordings so the overall
+        train/val duration is still met.
+\end{itemize}
+
+Because the same seconds-based budgets are enforced for \emph{every} recording,
+each subject (stage class) is represented evenly in both splits, satisfying the
+inter-subject evaluation goal. Coupled with the "long-window $\to$ fixed-patch
+subset $\to$ per-epoch draw strategy, this produces a deterministic,
+size-matched pipeline that is fair both \emph{within} EMG2Pose and \emph{between}
+EMG2Pose and our single-record dataset.
+
+\subsection{Handling discontinuities and patch sampling.}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1.0\textwidth]{datasampling.drawio.png}
+    \caption{Data Sampling.}
+    \label{fig:datasampling}
+\end{figure}
+
 Real-world recordings -- especially those in EMG2Pose -- contain brief drop-outs:
 marker occlusions, IK failures, or EMG glitches that break a take into smaller
 \emph{segments}. If we naïvely extracted every possible 2-second patch from a
-long train/val window, datasets with many discontinuities would yield fewer
-valid clips, biasing model comparison.
+long train/val window, datasets with many discontinuities would yield fewer clips, biasing model comparison.
 
-To keep evaluations fair across both our \emph{single, continuous} recording
-and the \emph{multi-segment} EMG2Pose corpus, we adopt a two-tier sampling
-strategy:
+To keep evaluations fair across both our \emph{single, continuous} recording and the \emph{multi-segment} EMG2Pose corpus, we adopt random sampling to keep the number of patches fixed no matter of segmentation, further the subsampling can be applied to reduce the amount of computation per each epoch so a two-tier sampling strategy appears:
 
 \begin{enumerate}[label=\arabic*.]
-
-  \item \textbf{Deliberately long windows.}
-        We first carve out generous, non-overlapping intervals -- 
-        e.g.\ \texttt{train\_length} = \SI{20}{min} and
-        \texttt{val\_length} = \SI{4}{min}.
-        Even if a recording is peppered with short gaps, each interval still
-        contains enough usable footage.
-
   \item \textbf{Fixed patch subset.}
         From each long interval we enumerate every admissible 2-second patch
         (sliding by one frame).
@@ -265,7 +292,7 @@ strategy:
         how fragmented the underlying footage is.
 
   \item \textbf{Per-epoch sub-sampling.}
-        During training, only a percentage
+        During validation or training, only a percentage
         (\texttt{train\_sample\_ratio}, \texttt{val\_sample\_ratio}) of that
         fixed patch pool is drawn each epoch.
         The subset is reshuffled every epoch (with a deterministic RNG seed per
@@ -286,31 +313,6 @@ that:
         yet the total pool remains constant, keeping cross-model metrics
         strictly comparable.
 \end{itemize}
-
-\subsection{Inter-subject time-budget split.}
-TODO: image
-
-Unlike our required goal, even within the same session the EMG2Pose corpus contains many short recordings of discrete stage classes.
-To evaluate \emph{inter-subject} generalization we apply the time-budget logic \emph{per recording}, ensuring every stage class contributes
-a training slice and a validation slice:
-
-\begin{itemize}
-  \item For each recording $r_{i}$ (and thus for each subject), draw  
-        a random offset, then cut
-        \texttt{train\_length}s $\;\to\;$ \emph{train window}
-        followed immediately by
-        \texttt{val\_length}s $\;\to\;$ \emph{validation window}.
-  \item If a recording is too short for both windows, it is skipped; the global
-        budgets are re-balanced across the remaining recordings so the overall
-        train/val duration is still met.
-\end{itemize}
-
-Because the same seconds-based budgets are enforced for \emph{every} recording,
-each subject (stage class) is represented evenly in both splits, satisfying the
-inter-subject evaluation goal. Coupled with the "long-window $\to$ fixed-patch
-subset $\to$ per-epoch draw strategy, this produces a deterministic,
-size-matched pipeline that is fair both \emph{within} EMG2Pose and \emph{between}
-EMG2Pose and our single-record dataset.
 
 \section{Learning Architecture}
 
