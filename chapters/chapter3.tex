@@ -96,7 +96,7 @@ This setup is capable of capturing high-quality EMG signals and has shown it's u
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.4\textwidth]{electrodes.png}
+    \includegraphics[width=0.7\textwidth]{electrodes.jpg}
     \caption{Electrode Placement.}
     \label{fig:electrodes}
 \end{figure}
@@ -150,7 +150,7 @@ Each \texttt{segments/N} file contains a sequence of tuples:
   \underbrace{20\! \times\! \text{float32}}_{\text{sigma frame}}
 \bigr]
 \]
-
+в
 The final 20-value \emph{sigma frame} holds the last pose sample that is not coupled with EMG. That is representing the overall intuition of what each patch of the data time alignment is -- meaning that emg timestamp is always captured between pose frames.
 
 \subsection{Synchronized Recording}
