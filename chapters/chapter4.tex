@@ -2,8 +2,8 @@
 \label{chap:impl}
 \chaptermark{Implementation}
 
-Thanks to 6 respondents participated in the study, we recorded 6 sessions of random motion 40 minutes each. The dataset is available for free use at \href{https://www.kaggle.com/datasets/nabuki/0-flexemg}{the kaggle}\footnote{\url{https://www.kaggle.com/datasets/nabuki/0-flexemg}}.
+Thanks to \textbf{6 respondents} participated in the study, we recorded \textbf{6 sessions of random motion 40 minutes each}. The dataset is available for free use at \href{https://www.kaggle.com/datasets/nabuki/0-flexemg}{the kaggle}\footnote{\url{https://www.kaggle.com/datasets/nabuki/0-flexemg}}.
 
-For the training we used \emph{A100} and \emph{P100} GPUs provided by \emph{InnoDataHub} and \emph{Kaggle}. Overall hyperparameter sweep was done on $\approx$8k runs -- raw sum of computations add up to about 800 hours of training time (e.g. $\approx$400 hours of compute time for each CNN and STS featurizer).
+For the training we used \textbf{A100} and \textbf{P100} GPUs provided by \textbf{InnoDataHub} and \textbf{Kaggle}. Overall hyperparameter sweep was done on near \textbf{8k runs} -- raw sum of computations add up to about \textbf{800 hours of training time} (e.g. $\approx$400 hours of compute time for each CNN and STS featurizer).
 
 The same hardware was used for the broader investigation of the best hyperparameters of STS and CNN models and exploring fit without emg, making $\approx$100 more fits on different dataset randomizations with total compute of about 20 more hours.
