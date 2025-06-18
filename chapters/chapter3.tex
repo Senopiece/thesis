@@ -2,9 +2,7 @@
 \label{chap:met}
 \chaptermark{Methodology}
 
-This chapter documents all engineering steps taken to build and exploit our
-custom multimodal sEMG + hand-pose dataset. All code is MIT-licensed; the data
-are provided free of charge with no usage restrictions.
+This chapter documents all engineering steps taken to build and exploit our custom multimodal sEMG + hand-pose dataset. All code is MIT-licensed; the data are provided free of charge with no usage restrictions.
 
 \section{Why a New Dataset?}
 
@@ -24,14 +22,7 @@ are provided free of charge with no usage restrictions.
 
 \subsection{Geometry and Calibration}
 
-Four webcams (1280x800, 60 fps) are mounted around a
-\SI{1.2}{\metre}$^{3}$ workspace -- three frontal views aimed at the palm and one
-dorsal view. Accurate multi-view geometry is obtained with a \textit{radon
-checkerboard}: an \emph{asymmetric} grid printed on \textbf{both} faces of an
-A4 sheet, with extra anchor dots so the two patterns coincide perfectly when
-held up to the light. Thanks to this dual-face design every camera can see a
-valid checkerboard in the \emph{same} shot, eliminating the 180° ambiguity of
-single-face boards.
+Four webcams (1280x800, 60 fps) are mounted around a \SI{1.2}{\metre}$^{3}$ workspace -- three frontal views aimed at the palm and one dorsal view. Accurate multi-view geometry is obtained with a \textit{radon checkerboard}: an \emph{asymmetric} grid printed on \textbf{both} faces of an A4 sheet, with extra anchor dots so the two patterns coincide perfectly when held up to the light. Thanks to this dual-face design every camera can see a valid checkerboard in the \emph{same} shot, eliminating the 180° ambiguity of single-face boards.
 
 \begin{enumerate}[label=\arabic*.]
   \item \textbf{Per-camera intrinsics}\\
@@ -57,12 +48,7 @@ single-face boards.
 \end{enumerate}
 
 \noindent
-The current implementation relies on direct \emph{pair-wise} overlaps with the
-pivot camera; a note in the code highlights a future upgrade to bundle-adjust
-\emph{all} pairs for even tighter global consistency. Nevertheless, the
-stereo-against-pivot approach already provides sub-millimetre triangulation
-accuracy at a working distance of \SI{50}{\centi\metre}, adequate for EMG-to-pose
-learning.
+The current implementation relies on direct \emph{pair-wise} overlaps with the pivot camera; a note in the code highlights a future upgrade to bundle-adjust \emph{all} pairs for even tighter global consistency. Nevertheless, the stereo-against-pivot approach already provides sub-millimetre triangulation accuracy at a working distance of \SI{50}{\centi\metre}, adequate for EMG-to-pose learning.
 
 \subsection{Landmark Triangulation \& Real-Time IK}
 
@@ -73,9 +59,7 @@ learning.
     \label{fig:kinematics}
 \end{figure}
 
-MediaPipe Hands detects 21 landmarks per retained frame (32 fps after
-alignment). Multi-view triangulation yields 3-D key-points. A hand-crafted,
-analytic inverse-kinematics solver enforces bone lengths and joint limits and works in real time.
+MediaPipe Hands detects 21 landmarks per retained frame (32 fps after alignment). Multi-view triangulation yields 3-D key-points. A hand-crafted, analytic inverse-kinematics solver enforces bone lengths and joint limits and works in real time.
 
 Refer to \href{https://github.com/Senopiece/webcam_hand_triangulation/blob/v1.0/notebooks/kinematics.ipynb}{the notebook}\footnote{\url{https://github.com/Senopiece/webcam_hand_triangulation/blob/v1.0/notebooks/kinematics.ipynb}} to explore the kinematics more in-depth. 
 
@@ -157,7 +141,7 @@ Each \texttt{segments/N} file contains a sequence of tuples:
   \underbrace{20\! \times\! \text{float32}}_{\text{sigma frame}}
 \bigr]
 \]
-в
+
 The final 20-value \emph{sigma frame} holds the last pose sample that is not coupled with EMG. That is representing the overall intuition of what each patch of the data time alignment is -- meaning that emg timestamp is always captured between pose frames.
 
 \subsection{Synchronized Recording}
@@ -193,10 +177,7 @@ The capture application shows
 Immediate feedback helps catch loose electrodes or camera drop-outs.
 
 \subsection{Re-encoding EMG2Pose}
-Before training, the public EMG2Pose corpus is converted into this exact ZIP
-layout using \href{https://github.com/Senopiece/hand_emg_regression/blob/v1.0/notebooks/convert_dataset.ipynb}{the Jupyter workflow}\footnote{\url{https://github.com/Senopiece/hand_emg_regression/blob/v1.0/notebooks/convert_dataset.ipynb}}. This notebook reads the original HDF5
-files, extracts pose + EMG, and writes out ZIP packages with YAML metadata,
-ensuring both corpora share an identical structure.
+Before training, the public EMG2Pose corpus is converted into this exact ZIP layout using \href{https://github.com/Senopiece/hand_emg_regression/blob/v1.0/notebooks/convert_dataset.ipynb}{the Jupyter workflow}\footnote{\url{https://github.com/Senopiece/hand_emg_regression/blob/v1.0/notebooks/convert_dataset.ipynb}}. This notebook reads the original HDF5 files, extracts pose + EMG, and writes out ZIP packages with YAML metadata, ensuring both corpora share an identical structure.
 
 \subsection{Interpolation \& Resampling Strategy}
 
@@ -253,8 +234,7 @@ resampling is purely an offline, loader-side convenience.
 \end{figure}
 
 Unlike our required goal, even within the same session the EMG2Pose corpus contains many short recordings of discrete stage classes.
-To evaluate \emph{inter-subject} generalization we apply the time-budget logic \emph{per recording}, ensuring every stage class contributes
-a training slice and a validation slice:
+To evaluate \emph{inter-subject} generalization we apply the time-budget logic \emph{per recording}, ensuring every stage class contributes a training slice and a validation slice:
 
 \begin{itemize}
   \item We aim to carve out generous, non-overlapping intervals -- 
@@ -273,12 +253,7 @@ a training slice and a validation slice:
         train/val duration is still met.
 \end{itemize}
 
-Because the same seconds-based budgets are enforced for \emph{every} recording,
-each subject (stage class) is represented evenly in both splits, satisfying the
-inter-subject evaluation goal. Coupled with the "long-window $\to$ fixed-patch
-subset $\to$ per-epoch draw strategy, this produces a deterministic,
-size-matched pipeline that is fair both \emph{within} EMG2Pose and \emph{between}
-EMG2Pose and our single-record dataset.
+Because the same seconds-based budgets are enforced for \emph{every} recording, each subject (stage class) is represented evenly in both splits, satisfying the inter-subject evaluation goal. Coupled with the "long-window $\to$ fixed-patch subset $\to$ per-epoch draw strategy, this produces a deterministic, size-matched pipeline that is fair both \emph{within} EMG2Pose and \emph{between} EMG2Pose and our single-record dataset.
 
 \subsection{Handling discontinuities and patch sampling.}
 
@@ -290,9 +265,8 @@ EMG2Pose and our single-record dataset.
 \end{figure}
 
 Real-world recordings -- especially those in EMG2Pose -- contain brief drop-outs:
-marker occlusions, IK failures, or EMG glitches that break a take into smaller
-\emph{segments}. If we naïvely extracted every possible 2-second patch from a
-long train/val window, datasets with many discontinuities would yield fewer clips, biasing model comparison.
+marker occlusions, IK failures, or EMG glitches that break a take into smaller \emph{segments}.
+If we naïvely extracted every possible 2-second patch from a long train/val window, datasets with many discontinuities would yield fewer clips, biasing model comparison.
 
 To keep evaluations fair across both our \emph{single, continuous} recording and the \emph{multi-segment} EMG2Pose corpus, we adopt random sampling to keep the number of patches fixed no matter of segmentation, further the subsampling can be applied to reduce the amount of computation per each epoch so a two-tier sampling strategy appears:
 
@@ -317,8 +291,7 @@ To keep evaluations fair across both our \emph{single, continuous} recording and
 
 \end{enumerate}
 
-This three-step approach -- long windows, fixed patch subset, per-epoch draw -- means
-that:
+This three-step approach -- long windows, fixed patch subset, per-epoch draw -- means that:
 
 \begin{itemize}
   \item A dataset with dense discontinuities (EMG2Pose) and one that is
@@ -354,11 +327,7 @@ At every step it receives
         prediction they are replaced by the model`s own outputs.
 \end{itemize}
 
-As soon as a new pose is produced, the context window slides forward by one
-frame: the oldest pose is discarded, the freshly predicted pose is appended,
-and the next EMG slice is read.
-Because this loop has no internal state other than the sliding window itself,
-tracking can continue indefinitely on a live EMG stream.
+As soon as a new pose is produced, the context window slides forward by one frame: the oldest pose is discarded, the freshly predicted pose is appended, and the next EMG slice is read. Because this loop has no internal state other than the sliding window itself, tracking can continue indefinitely on a live EMG stream.
 
 \subsection{Next Pose Prediction}
 
@@ -398,9 +367,7 @@ tracking can continue indefinitely on a live EMG stream.
 \subsection{Sequence-level Training Objective}
 
 Training is performed on short sequences (e.g.\ a two-second EMG clip).
-Within each sequence the network steps forward autoregressively, updating its
-own context exactly as it would at run time. Only after the entire rollout is
-finished is the composite loss evaluated:
+Within each sequence the network steps forward autoregressively, updating its own context exactly as it would at run time. Only after the entire rollout is finished is the composite loss evaluated:
 
 \begin{align*}
 \mathcal{L} =\;&
@@ -410,27 +377,16 @@ finished is the composite loss evaluated:
 &+ k_3\text{L}_{1} + k_4\text{L}_{2}
 \end{align*}
 
-Here \(L(\cdot)\) denotes 3-D landmarks recovered via a forward-kinematics layer
-compatible with the chosen pose format. $\text{L}_{1} / \text{L}_{2}$ are standard Lasso and Ridge terms. The positional term drives spatial
-accuracy, while the velocity and acceleration terms penalize jitter and
-encourage dynamical consistency. Parameter regularization keeps the model
-compact and reduces over-fitting.
-Optimization uses plain gradient descent; because the network is stateless
-apart from its sliding window, no back-propagation through time is required.
+Here \(L(\cdot)\) denotes 3-D landmarks recovered via a forward-kinematics layer compatible with the chosen pose format. $\text{L}_{1} / \text{L}_{2}$ are standard Lasso and Ridge terms. The positional term drives spatial accuracy, while the velocity and acceleration terms penalize jitter and encourage dynamical consistency. Parameter regularization keeps the model compact and reduces over-fitting.
+Optimization uses plain gradient descent; because the network is stateless apart from its sliding window, no back-propagation through time is required.
 
 \medskip\noindent
-In summary, the model marries a learnable EMG encoder, a skip-connected MLP,
-and a causal filter into a fully autoregressive hand-pose tracker that can
-consume continuous EMG data and produce anatomically plausible joint angles in
-real time.
+In summary, the model marries a learnable EMG encoder, a skip-connected MLP, and a causal filter into a fully autoregressive hand-pose tracker that can consume continuous EMG data and produce anatomically plausible joint angles in real time.
 
 \subsection{Comprehensive hyper-parameter sweep}
 
-To put both featuriser families-CNN and STS-on an equal footing, we perform a
-single, unified sweep on the Weights\&Biases (W\&B) platform.
-A Bayesian optimizer proposes configurations; each proposal trains under a
-\emph{Hyperband} early-stopping regime (a run must survive 70 iterations to
-avoid pruning and is forcibly stopped at 300).
+To put both featuriser families-CNN and STS-on an equal footing, we perform a single, unified sweep on the Weights\&Biases (W\&B) platform.
+A Bayesian optimizer proposes configurations; each proposal trains under a \emph{Hyperband} early-stopping regime (a run must survive 70 iterations to avoid pruning and is forcibly stopped at 300).
 Mean 3-D landmark error on a fixed validation split is the metric to minimize.
 
 \paragraph{Validation slice (fixed for fairness).}
@@ -447,8 +403,7 @@ Locking these numbers removes bias due to clip density or recording length
 differences.
 
 \paragraph{Data budget and temporal resolution (swept).}
-Conversely, the optimizer may vary how much \emph{training} footage it sees and
-at what cadence:
+Conversely, the optimizer may vary how much \emph{training} footage it sees and at what cadence:
 
 \begin{itemize}
   \item \textbf{Training slice duration}: \SIlist{5;8;12;20;25;30}{min};
@@ -472,8 +427,7 @@ The sweep also searches:
 \end{itemize}
 
 \paragraph{Pose context and shared MLP widths.}
-The size of the sliding pose window and the capacity of the fully connected
-stack are treated symmetrically for both stems:
+The size of the sliding pose window and the capacity of the fully connected stack are treated symmetrically for both stems:
 
 \begin{itemize}
   \item \textbf{Poses in context}: \{3, 4, 8, 12, 20\};
@@ -507,29 +461,16 @@ When the stem is a conventional 1-D CNN, three kernel lengths are swept:
 \end{itemize}
 
 \paragraph{Dataset mixing and randomisation.}
-At launch, random dataset resolver assembles a fresh session list that blends our own
-continuous capture with randomly chosen EMG2Pose sessions.
-Consequently, each hyper-parameter set is vetted on \emph{the full diversity of
-subjects, hardware, and motion styles}.
-A fixed random seed ensures reproducibility-identical W\&B IDs rerun the same
-training itinerary-while still exposing the optimiser to representative
-variance.
+At launch, random dataset resolver assembles a fresh session list that blends our own continuous capture with randomly chosen EMG2Pose sessions.
+Consequently, each hyper-parameter set is vetted on \emph{the full diversity of subjects, hardware, and motion styles}.
+A fixed random seed ensures reproducibility-identical W\&B IDs rerun the same training itinerary-while still exposing the optimiser to representative variance.
 
-In total, millions of theoretical combinations collapse to a practical number
-of trials thanks to Hyperband`s pruning: only promising regions of the search
-space are explored deeply, and unpromising ones are terminated early, yielding
-a compute-efficient yet thorough search.
+In total, millions of theoretical combinations collapse to a practical number of trials thanks to Hyperband`s pruning: only promising regions of the search space are explored deeply, and unpromising ones are terminated early, yielding a compute-efficient yet thorough search.
 
 \paragraph{Post-sweep model selection and comparative analysis.}
-Once the sweep has matured and convergence is observed across multiple promising
-trials, we terminate the hyper-parameter exploration and extract the top
-configurations for both featuriser families -- STS and CNN.
+Once the sweep has matured and convergence is observed across multiple promising trials, we terminate the hyper-parameter exploration and extract the top configurations for both featuriser families -- STS and CNN.
 
-These best-performing configurations are then \emph{frozen} to ensure that
-subsequent comparisons are not biased by additional tuning. With these fixed
-architectures and hyperparameters, we proceed to a broader evaluation on
-multiple sessions to study the behavior of each model type in various
-conditions.
+These best-performing configurations are then \emph{frozen} to ensure that subsequent comparisons are not biased by additional tuning. With these fixed architectures and hyperparameters, we proceed to a broader evaluation on multiple sessions to study the behavior of each model type in various conditions.
 
 Specifically, we measure:
 
@@ -539,15 +480,10 @@ Specifically, we measure:
   \item sensitivity to underactuated or noisy EMG input segments.
 \end{itemize}
 
-This phase allows us to qualitatively and quantitatively assess which featuriser
-is better suited to which conditions -- for instance, whether CNNs outperform on
-structured gestures, while STS provides robustness to fine-grained spontaneous
-motion.
+This phase allows us to qualitatively and quantitatively assess which featuriser is better suited to which conditions -- for instance, whether CNNs outperform on structured gestures, while STS provides robustness to fine-grained spontaneous motion.
 
 \paragraph{Ablation: EMG-free autoregression.}
-To test the hypothesis that hand pose sequences may be partially predictable
-even without EMG input -- e.g., due to biomechanical continuity -- we run a
-controlled ablation:
+To test the hypothesis that hand pose sequences may be partially predictable even without EMG input -- e.g., due to biomechanical continuity -- we run a controlled ablation:
 
 \begin{itemize}
   \item The model is provided with an initial sequence of hand poses (and their
@@ -558,10 +494,6 @@ controlled ablation:
 \end{itemize}
 
 We repeat this test for both our dataset and EMG2Pose recordings.
-Performance degradation in this setting quantifies how much of the hand motion
-is learnable from kinematic continuity alone -- and by contrast, how much is
-uniquely contributed by EMG signals.
+Performance degradation in this setting quantifies how much of the hand motion is learnable from kinematic continuity alone -- and by contrast, how much is uniquely contributed by EMG signals.
 
-This final comparative round, built atop the validated hyperparameter regimes,
-provides a holistic view of model expressiveness, sensitivity, and the value of
-multimodal input.
+This final comparative round, built atop the validated hyperparameter regimes, provides a holistic view of model expressiveness, sensitivity, and the value of multimodal input.
