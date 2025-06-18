@@ -197,19 +197,27 @@ The loader supports two 20-angle representations:
 \paragraph{Kernel benchmark.}
 Five interpolation techniques were timed on a 250$\to$1000-frame up-sample test:
 
-\begin{center}\small
-\begin{tabular}{@{}lcc@{}}
-\toprule
-Scheme            & Time (ms) & Visual verdict \\ \midrule
-Linear            & 1.0  & robotic, piecewise-constant velocity \\
-\textbf{Akima}    & 6.4  & smooth, no overshoot (chosen) \\
-Monotone cubic    & 8.3  & smooth but noticeably slower \\
-Cubic spline      & 6.7  & severe overshoot at peaks \\
-B-spline          & 9.3  & same overshoot issue, slowest \\ \bottomrule
-\end{tabular}
-\end{center}
-
-Akima offers the best trade-off between speed and anatomical plausibility.
+{\small
+\begin{longtable}{l|c|l}
+\captionsetup{justification=centering}
+\caption[Comparison of interpolation schemes]{Timing and visual quality comparison of interpolation schemes. Akima was chosen for its smoothness and lack of overshoot.} \label{tab:interpolation_schemes} \\
+\hline
+Scheme & Time (ms) & Visual verdict \\
+\hline
+\endfirsthead
+\multicolumn{3}{@{}l}{\tablename\ \thetable{} -- continued from previous page} \\
+\hline
+Scheme & Time (ms) & Visual verdict \\
+\hline
+\endhead
+Linear         & 1.0 & robotic, piecewise-constant velocity \\
+\textbf{Akima} & 6.4 & smooth, no overshoot (chosen) \\
+Monotone cubic & 8.3 & smooth but noticeably slower \\
+Cubic spline   & 6.7 & severe overshoot at peaks \\
+B-spline       & 9.3 & same overshoot issue, slowest \\
+\hline
+\end{longtable}
+}
 
 \paragraph{Loader-time resampling.}
 Raw pose is stored exactly as captured at 32 fps.
