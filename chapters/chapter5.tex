@@ -2,7 +2,7 @@
 \label{chap:eval}
 \chaptermark{Evaluation and Discussion}
 
-\section{Phase I: Sweep Results}
+\section{Sweep Results}
 
 \subsection{Hyperparameter-Error Correlation Analysis}
 Based on our exhaustive hyperparameter sweep, we identified the correlation between hyperparameters and validation performance.
@@ -25,6 +25,8 @@ This pattern suggests these hyperparameters are more architecture-sensitive and 
 In some cases, the correlation not only differs in strength but in \textit{direction} between architectures. 
 Notably, \texttt{train\_patches} exhibits a \textbf{positive correlation} in CNN but a \textbf{negative correlation} in STS. 
 Likewise, both \texttt{frames\_per\_window} and \texttt{l1} show a \textbf{negative correlation} in CNN and a \textbf{positive correlation} in STS, further emphasizing divergent optimization behavior.
+
+Interestingly, the hyperparameters allowing train split to grow larger, namely \texttt{train\_length}, \texttt{train\_sample\_ratio} and \texttt{train\_patches}, show a very diverse correlation with the validation metric -- hence a deeper investigation was conducted to evaluate non-linear dependencies. As the result, it was found that the dependency is indeed non-linear neither any monotonic. It appears to be that the optimal range of the interval to train is \textbf{14-18 minutes}, a bigger split harms the prediction results. Such a  investigation imply that the slow-varying drift, subject fatigue, and nonstationary artifacts has a severe affect in a long term sessions, disallowing for a model to keep being effective.
 
 Among the architecture-specific hyperparameters, distinct trends were also observed. 
 In the CNN setup, both \texttt{conv\_layer1\_kernels} and \texttt{conv\_layer2\_kernels} exhibited a \textbf{strong positive correlation} with the validation mean landmark error, 
@@ -57,7 +59,9 @@ The rankings below list these \emph{most sensitive} hyperparameters for each arc
     \end{itemize}
 \end{enumerate}
 
-\section{Phase II: Inter-Subject Exploration}
+\section{Inter-Subject Exploration and Fit Without EMG}
+
+\subsection{Selected Hyperparameters}
 
 Following the hyperparameter correlation and importance analysis, we picked the following values for the evaluation on the second stage:
 
@@ -105,7 +109,32 @@ std\_stride                    & 60 ms        & ---          \\
 \end{longtable}
 }
 
-TODO: show how the fixed hyperparameter STS and CNN perform on different sessions, make some measures like mean error overall, mean error per flexemg, mean error per their dataset, mean error per datasets that are good/bad at -emg, mean error on +emg / mean error on -emg mean train time, tendency to overfit etc. ; show the plot of error progression and unrolled animation for a random session - say that for the others it looks similar
+\paragraph{Quality}
+Both STS and CNN versions observed to produce visually correct results while inferring on a test split -- a separate interval not included neither in train nor in validation split. Numerically the quality can be quantified with landmark error progression. There is the error plot of the STS version trained and evaluated on a EMG2Pose session:
 
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1.0\textwidth]{error_progression.png}
+    \caption{A Inference Error Progression.}
+    \label{fig:error_progression}
+\end{figure}
 
-TODO: phase 3 where we compare +emg to -emg
+Overall the validation metrics achieved by both models across training individually on all sessions are presented in the table:
+
+\textbf{TODO: table STS/CNN | EMG/NoEMG on ours/emg2pose}
+% TODO: to table STS/CNN | EMG/No EMG
+% - Mean landmark error of 18+-5mm (TODO) is nearly equivalent for both the models
+% - Mean landmark error of 18+-5mm (TODO) for the models using CNN fit without EMG
+% - Mean landmark error of 18+-5mm (TODO) for the models using STS fit without EMG
+
+Both models perform equally no under having or not having emg information. Notably at the perspective of fit without emg both models perform nearly the same too. This clue is indicating that the shared part of both models, namely the final layers that are directly fed with the poses are responsible for that notion of fit without emg.
+
+Nevertheless the presence of fit without emg indicates that the hand motion present in the dataset itself is predictable enough for model to overfit to it and the problem cannot be spotted on the validation metric. As a corollary, for our datasets of random motion, a greater difference in the validation metric between the models trained with and without EMG information is observed.
+
+\paragraph{Model Size}
+STS appears to be more expensive in terms of parameters while having the same quality. In case of the benchmarked models, STS weights \textbf{3.2 MB} with \textbf{840 K} parameters, while CNN version is just acquiring \textbf{1 MB} with \textbf{250 K} parameters.
+
+\paragraph{Training and Inference Time}
+Because of the size of the models, while benchmarking the Phase II, mean time to train a STS model is observed to be about \textbf{1.5 hours}. On the other hand, mean time to train a CNN version is measured to be about \textbf{1 hour}. -- This indicates that STS is faster to execute under the same number of parameters, but the fact that it required more parameters to achieve the same quality outbalanced the training time.
+
+Similar situation appears at the inference time. Where CNN model is able to perform \textbf{1200 predictions per second} on a \textbf{AMD Ryzen 7 7735HS} CPU. While for a bigger STS model prediction rate is about \textbf{900 predictions per second} on the same hardware.
