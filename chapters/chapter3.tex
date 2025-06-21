@@ -274,7 +274,7 @@ Because the same seconds-based budgets are enforced for \emph{every} recording, 
 
 Real-world recordings -- especially those in EMG2Pose -- contain brief drop-outs:
 marker occlusions, IK failures, or EMG glitches that break a take into smaller \emph{segments}.
-If we naïvely extracted every possible 2-second patch from a long train/val window, datasets with many discontinuities would yield fewer clips, biasing model comparison.
+If we naively extracted every possible 2-second patch from a long train/val window, datasets with many discontinuities would yield fewer clips, biasing model comparison.
 
 To keep evaluations fair across both our \emph{single, continuous} recording and the \emph{multi-segment} EMG2Pose corpus, we adopt random sampling to keep the number of patches fixed no matter of segmentation, further the subsampling can be applied to reduce the amount of computation per each epoch so a two-tier sampling strategy appears:
 
@@ -371,6 +371,8 @@ As soon as a new pose is produced, the context window slides forward by one fram
         whose weights are trained alongside the rest of the network. The
         filter damps frame-to-frame noise without introducing noticeable lag.
 \end{enumerate}
+
+Notably, the in-middle linear layer allows for more accurate prediction. If a ReLU appened after it or with the linear layer being removed, the model performs much worse no matter the featurizer -- this might arise from the use of skip connections, indicating that the presence of differential components cross multipliers play a key role in augmenting the state information.
 
 \subsection{Sequence-level Training Objective}
 

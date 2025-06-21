@@ -121,15 +121,39 @@ Both STS and CNN versions observed to produce visually correct results while inf
 
 Overall the validation metrics achieved by both models across training individually on all sessions are presented in the table:
 
-\textbf{TODO: table STS/CNN | EMG/NoEMG on ours/emg2pose}
-% TODO: to table STS/CNN | EMG/No EMG
-% - Mean landmark error of 18+-5mm (TODO) is nearly equivalent for both the models
-% - Mean landmark error of 18+-5mm (TODO) for the models using CNN fit without EMG
-% - Mean landmark error of 18+-5mm (TODO) for the models using STS fit without EMG
+{\small
+\begin{longtable}{l|c|l}
+\captionsetup{justification=centering}
+\caption[Comparison of models and EMG input]{Validation error ($\text{mean} \pm \text{std}$) across models and EMG input on different dataset types.} \label{tab:model_emg_comparison} \\
+\hline
+Setting & Val Error ($\mu \pm \sigma$), mm & Comment \\
+\hline
+\endfirsthead
+\multicolumn{3}{@{}l}{\tablename\ \thetable{} -- continued from previous page} \\
+\hline
+Setting & Val Error ($\mu \pm \sigma$), mm & Comment \\
+\hline
+\endhead
+\textbf{STS (ours)}           & 22.07 ± 4.15 & -- \\
+\textbf{CNN (ours)}           & 20.88 ± 3.45 & -- \\
+\textbf{CNN noEMG (ours)}     & 22.10 ± 4.50 & insignificantly worse without EMG \\
+\hline
+\textbf{STS (emg2pose)}       & 17.63 ± 7.28 & -- \\
+\textbf{CNN (emg2pose)}       & 16.89 ± 5.94 & -- \\
+\textbf{CNN noEMG (emg2pose)} & 19.31 ± 8.10 & very little degradation without EMG \\
+\hline
+\textbf{STS (all)}            & 19.37 ± 6.52 & -- \\
+\textbf{CNN (all)}            & 19.25 ± 4.94 & matching quality of STS \\
+\textbf{CNN noEMG (all)}      & 20.55 ± 6.80 & error grows insignificantly without EMG \\
+\hline
+\end{longtable}
+}
 
-Both models perform equally no under having or not having emg information. Notably at the perspective of fit without emg both models perform nearly the same too. This clue is indicating that the shared part of both models, namely the final layers that are directly fed with the poses are responsible for that notion of fit without emg.
+From the information above it's clearly seen that STS and CNN featurizers are nearly the same in mean quality. However STS provides more diverse results and we need to comment that for a better quality dataset it fits better than CNN, but for a slight loss in quality it reacts much seriously. -- Generally it means that better models can be constructed with STS if a better EMG signal provided.
 
-Nevertheless the presence of fit without emg indicates that the hand motion present in the dataset itself is predictable enough for model to overfit to it and the problem cannot be spotted on the validation metric. As a corollary, for our datasets of random motion, a greater difference in the validation metric between the models trained with and without EMG information is observed.
+Additionally, for a record on our hardware of a repeatable hand motion, we achieve precisely \textbf{17 mm} mean landmark error, indicating that the landmark errors for both hand kinematic models are fair to compare. -- Overall concluding that having random motion in the dataset indeed helps the model to attend to EMG more rather than spending resources trying to fake the performance by leveraging predictable hand motion of the training split.
+
+At the same time, we observe \textbf{CNN noEMG (ours)} not to meet the expected degradation level. Since degradation consist of two things: hand pose predictability and the EMG signal quality itself, it appears that the second option is hit -- the EMG acquisition hardware we use does not meet good signal quality.
 
 \paragraph{Model Size}
 STS appears to be more expensive in terms of parameters while having the same quality. In case of the benchmarked models, STS weights \textbf{3.2 MB} with \textbf{840 K} parameters, while CNN version is just acquiring \textbf{1 MB} with \textbf{250 K} parameters.
