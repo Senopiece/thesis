@@ -67,35 +67,51 @@ All three baseline models were re-examined under a single evaluation pipeline in
 Informed by these lessons, the present work introduces an \emph{adaptive spatio-temporal sampling} block that automatically highlights the most informative electrodes and time windows on a per-instance basis, aiming to boost intra-user robustness and enhance overall decoding reliability.
 
 \section{Research Gap and Questions}
+\label{sec:gap}
 
-Interest in sEMG-based hand-pose estimation keeps growing, yet clear shortcomings remain in both model design and data-collection practice. This thesis tackles those shortcomings by proposing a fresh modelling framework and by building an affordable multimodal acquisition pipeline.
+Despite rapid progress, sEMG-based hand-pose tracking still suffers from three
+core deficiencies: (i) uncertainty over how much performance can be squeezed
+from \emph{low-cost hardware}, (ii) lack of a principled way to \emph{sample
+spatiotemporal structure} in the EMG stream, and (iii) dataset practices that
+let a network "guess" future motion from kinematic continuity alone.  
+The thesis addresses these deficits and frames them as the following research
+questions (\textbf{RQ-A}, \textbf{RQ-B}, \textbf{RQ-C}).
 
-\subsection*{Gap 1 -- Missing Joint Spatiotemporal Feature Selection}
+\subsection*{Gap 1 — Practical limits of budget hardware}
 
-Most modern networks still rely on a fixed-length time window and treat every channel the same. That setup offers little control over \emph{where} and \emph{when} to focus inside the signal -- ignoring cues such as electromechanical delay or the fact that some electrodes matter more for certain motions. The result is less interpretability and extra, often wasted, computation.
+State-of-the-art datasets rely on \(>\)\$20 k motion-capture volumes and
+precision sEMG amplifiers; such equipment is unattainable for many research
+groups.  It remains unclear how far a frugal rig can go before sensor noise,
+latency, or clock drift erase the gains of better algorithms.
 
-To close this gap, we introduce \textit{Spatiotemporal Sampling} -- a block that learns, straight from the data, which time slices and electrodes carry the most useful information.
+\begin{description}[style=unboxed,leftmargin=0pt]
+\item[\textbf{RQ-A}] \emph{How well can an inexpensive, four-webcam optical
+      setup and a \$40 Seeeduino-based sEMG board support millimetre-accurate
+      hand tracking?}  At what point does hardware noise—not model capacity
+      become the performance bottleneck?
+\end{description}
 
-\textbf{RQ1.} How can a model learn to pick the right temporal snippets and spatial patterns in a multichannel sEMG stream?
+\subsection*{Gap 2 — Missing adaptive spatiotemporal sampling}
 
-\textbf{RQ2.} How can knowledge about electromechanical delay and signal alignment guide that sampling process?
+Most networks still use a fixed window and equal weighting for every electrode,
+ignoring electromechanical delay, muscle-specific activation, and temporal
+context. This wastes computation and obscures physiological meaning.
 
-\subsection*{Gap 2 -- Few Low-Cost Systems for High-Quality Multimodal Capture}
+\begin{description}[style=unboxed,leftmargin=0pt]
+\item[\textbf{RQ-B}] \emph{Can a learnable sampler that chooses \textbf{where}
+      (electrode) and \textbf{when} (time slice) to look in the EMG improve
+      accuracy, and does the benefit persist once signal quality drops?}
+\end{description}
 
-Existing multimodal datasets usually depend on price-heavy motion-capture rigs or give up temporal resolution and sync accuracy. That barrier makes it hard to gather long, continuous recordings -- the kind real-world apps actually need.
+\subsection*{Gap 3 — Dataset bias toward scripted motion}
 
-We therefore build a budget-friendly pipeline that combines MediaPipe 3-D tracking with custom EMG hardware, both locked to a shared clock.
+Short, repetitive gestures dominate public corpora.  A model can overfit by
+extrapolating smooth joint trajectories rather than attending to EMG. Long,
+unscripted motion is needed to force genuine neuromuscular decoding.
 
-\textbf{RQ3.} Which hardware-plus-software choices allow us to record high-rate sEMG and 3-D hand pose in perfect sync, yet keep costs low?
-
-\textbf{RQ4.} How should we run the data-collection sessions so that we capture long, natural hand movements aligned with sEMG?
-
-\subsection*{Gap 3 -- Limited Study of Intra-Subject Generalisation}
-
-Most public corpora focus on cross-user generalisation over short, scripted gestures. Real-life scenarios -- like personalised UIs -- need a model that stays reliable within the \emph{same} user during long, free-form motion.
-
-Our new dataset targets that need, recording lengthy sessions from a single user, and our model is built to adapt to the subtle changes found there.
-
-\textbf{RQ5.} How can we organise a dataset to study intra-subject generalisation under realistic, continuous hand movements?
-
-\textbf{RQ6.} What traits must a model have to exploit that intra-subject variation during training and inference?
+\begin{description}[style=unboxed,leftmargin=0pt]
+\item[\textbf{RQ-C}] \emph{Does recording minutes-long, random hand activity
+      reduce a model`s ability to "cheat" without EMG, and how should such
+      sessions be structured and split to study both intra- and inter-subject
+      generalisation?}
+\end{description}

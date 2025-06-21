@@ -2,4 +2,118 @@
 \label{chap:conclusion}
 \chaptermark{Conclusion}
 
-\ldots
+\section{Summary of Contributions}
+
+\begin{enumerate}[label=\arabic*.]
+
+\item \textbf{Open, Low-Cost Capture Pipeline}.
+      We demonstrated that a four-webcam array plus a \$40 Seeeduino-based
+      sEMG board can deliver sub-millimetre pose reconstruction at
+      \SI{32}{fps} and \SI{2.048}{kHz} raw EMG.
+      The entire system -- hardware files, firmware, Python capture stack, and a
+      storage format \(40\times\) smaller than EMG2Pose HDF5 -- is released
+      under MIT and free-to-use terms.
+
+\item \textbf{Adaptive Spatiotemporal Featuriser}.
+      STS learns \emph{where} and \emph{when} to sample the EMG, inserting the
+      result into a skip-connected MLP that also sees pose history, velocity
+      and acceleration. On high-quality recordings STS equals or exceeds a
+      carefully tuned CNN; on noisy or highly segmented data its advantage
+      diminishes, confirming RQ-B.
+
+\item \textbf{Hyper-parameter Study Across Datasets}.
+      A unified Bayesian+Hyperband sweep (millions of theoretical combinations)
+      shows that most hyper-parameters are architecture-agnostic, but some are
+      strongly model-specific: CNNs crave larger kernels and lower L\(_1\),
+      whereas STS cares about slice granularity and benefits from stronger
+      \(\ell_1\) sparsity.
+
+\item \textbf{Evidence for Motion Predictability}.
+      Experiments with the EMG channel muted reveal only modest degradation on
+      EMG2Pose and a larger drop on our dataset, implying that long, random,
+      unscripted sessions indeed prevent a network from relying solely on
+      kinematic extrapolation (answering RQ-C).
+
+\end{enumerate}
+
+\section*{Answers to the Research Questions}
+
+\begin{description}[style=unboxed,leftmargin=0pt]
+
+\item[\textbf{RQ-A}]
+      The budget hardware is adequate for optical tracking but \emph{marginal}
+      for sEMG: landmark error bottoms out at \(\sim\)22 mm on our board vs
+      17 mm on EMG2Pose`s high-end sensors. Upgrading the analogue front-end
+      would likely pay larger dividends than further model tweaks.
+
+\item[\textbf{RQ-B}]
+      STS outperforms CNN by \(\approx\)6 \% on clean data and ties it on noisy
+      data; thus the adaptive sampler is worthwhile \emph{provided the signal
+      quality justifies its extra parameters}. For low-SNR recordings the
+      simpler CNN offers a better accuracy-per-FLOP trade-off.
+
+\item[\textbf{RQ-C}]
+      Long, random motion segments are crucial: when the model is denied EMG,
+      validation error is expected to raise up to \textbf{7mm} more with random motion.
+      We therefore recommend that future datasets favour unscripted activities
+      to ensure that any measured gain truly comes from neuromuscular cues.
+
+\end{description}
+
+\section{Limitations and Future Work}
+
+\begin{itemize}
+  \item \textbf{Analogue noise floor}.
+        The Seeeduino`s 12-bit ADC and hobby-grade Bio-Circuit amplifiers are
+        the dominant noise source. A drop-in board based on a
+        16-bit ADS1299 (or comparable TI/Biopac front-end) would raise
+        dynamic range by \(\sim\)\SI{18}{dB}.
+
+  \item \textbf{Sampling throughput}.
+        Python capture is capped at \SI{32}{fps}. Re-implementing the
+        triangulation pipeline in C++ or Rust (with OpenCV bindings) should
+        push the full stack to \textbf{60 fps real time}, bringing optical
+        frame rate in line with the webcams' native output.
+
+  \item \textbf{Occlusion-aware triangulation}.
+        Currently all 21 landmarks are triangulated with equal weight. Future
+        work could score each 2-D detection by per-camera visibility and
+        confidence, then solve a weighted least-squares system that
+        automatically down-weights occluded or low-confidence points.
+
+  \item \textbf{Global calibration}.
+        A bundle-adjust refinement over all camera pairs—rather than the
+        present stereo-pivot shortcut—should shave residual error and extend
+        depth accuracy.
+
+  \item \textbf{Model compression / STS featurizer overhaul}.
+        The STS variant is larger and slower than CNN. Pruning, quantisation,
+        or knowledge-distillation could reduce latency without sacrificing the
+        benefits of adaptive sampling. At the same time we can try to constraint
+        the DOFs of the patterns -- stick to family of spike functions to be used.
+        Allow for slice to be matched with a portion of patterns instead of
+        matching with all og the presented ones.
+
+  \item \textbf{Learnable temporal windows}.
+        An encouraging avenue is to make the slice widths and statistical
+        window sizes \emph{themselves} learnable, allowing the network to tune
+        its temporal receptive field jointly with spatial attention.
+
+  \item \textbf{Extended kinematic expressiveness}.
+        Our IK layer assumes uniform bone lengths and a flat palm. Future work
+        could personalise bone lengths per user, add palm arching, wrist
+        pronation/supination, and even non-rigid soft-tissue deformation,
+        allowing the network to model a wider range of morphologies and motion
+        styles.
+
+\end{itemize}
+
+\section{Final Remarks}
+
+This work shows that high-quality, multi-modal hand-pose datasets can be
+captured on a student budget and that adaptive EMG sampling pays off once the
+signal-to-noise ratio crosses a modest threshold.
+We hope both the open hardware plans and the released software stack will lower
+the barrier for future studies and encourage a shift toward longer, more
+naturalistic recordings -- a prerequisite for reliable prosthetic control and
+intuitive AR/VR interaction.
