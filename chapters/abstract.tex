@@ -1,5 +1,20 @@
 \begin{abstract}
-% skip one line to make the abstract start with indent
 
-My abstract starts from here.
+\textbf{Background.}
+sEMG promises camera-free hand tracking, but current solutions need expensive gear or rely on short clips that let models "guess" motion.
+
+\textbf{Objective.}
+(RQ-A) Is a \$1 k rig -- four webcams plus a sEMG board enough for a good dataset?
+(RQ-B) Can a learnable \emph{Spatiotemporal-Sampling} (STS) block that selects \emph{where} and \emph{when} to read EMG beat a compact CNN?
+(RQ-C) Do long, random recordings curb "cheating" without EMG, and how should they be split for fair tests?
+
+\textbf{Methods.}
+We built an open-source system: 21 MediaPipe landmarks at 32 fps, four EMG channels at 2.048 kHz, stored in a ZIP format 40x smaller than EMG2Pose`s HDF5. CNN and STS stems feed a skip-connected MLP trained on position, velocity and acceleration loss. A Bayesian + Hyperband sweep (>10\textsuperscript{6} configs) spans our 6 x 40 min random-motion set and EMG2Pose; an EMG-off ablation gauges motion predictability.
+
+\textbf{Results.}
+Webcams give sub-mm triangulation; the cheap EMG chain limits fingertip error to $\approx$22 mm vs 17 mm on premium amps (RQ-A). STS outperforms CNN by $\approx$6 \% on clean data and ties on noisy recordings (RQ-B). Muting EMG raises error only 2-3 mm on gesture clips but \textbf{up to 7 mm} on random sessions, proving unscripted motion is essential (RQ-C).
+
+\textbf{Conclusions.}
+Millimetre-level multimodal hand data can be captured on a student budget, and adaptive STS helps when analogue noise is low. We release all hardware, software, data and models under permissive licences to accelerate affordable prosthetics, rehab and AR/VR research.
+
 \end{abstract}
