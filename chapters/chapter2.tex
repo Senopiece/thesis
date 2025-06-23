@@ -28,9 +28,9 @@ MediaPipe is the leading open-source toolkit for 3-D hand tracking in both acade
 
 Unlike closed systems such as the Leap Motion controller or most VR headsets -- which lock users into proprietary hardware, fixed SDKs, and a cramped capture volume of roughly 0.5 - 1 m -- MediaPipe imposes no hard tracking boundary. The same model can follow hands at arm`s length, across a lab bench, or within a wide-angle studio shot, enabling what we call \textit{unbounded spatial scaling}. Its permissive licence also lets researchers tweak the network architecture, integrate domain-specific priors (e.g., EMG synchronisation), and port the solution to custom embedded boards -- fostering rapid experimentation that would be impossible on locked-down commercial stacks. In short, MediaPipe blends affordability, flexibility, and high frame-rate performance, making it an ideal backbone for our cost-efficient, multimodal data-collection system.
 
-Several independent investigations now provide quantitative proof that MediaPipe delivers both high accuracy and robustness across a broad spectrum of experimental conditions. For example, Reimer \textit{et al.} \cite{reimer2023evaluation} ran a room-scale benchmark showing that the framework can keep a stable lock on the hand skeleton at viewing distances of up to 2.75 m -- a range in which the Oculus Quest optical tracker and the Leap Motion controller already begin to show noticeable drop-outs, especially when multiple users move simultaneously in the same capture space.  
+Several independent investigations now provide quantitative proof that MediaPipe delivers both high accuracy and robustness across a broad spectrum of experimental conditions. For example, Reimer \textit{et al.} \cite{reimer2023evaluation} ran a room-scale benchmark showing that the framework can keep a stable lock on the hand skeleton at viewing distances of up to 2.75 m -- a range in which the Oculus Quest optical tracker and the Leap Motion controller already begin to show noticeable drop-outs, especially when multiple users move simultaneously in the same capture space.
 
-When the focus shifts to fine-grained finger-joint reconstruction, Maggioni \textit{et al.} \cite{maggioni2025optimisation} recorded a RMSE of just \(10.9^{\circ}\) joint angle error for MediaPipe -- comfortably below the \(14.7^{\circ}\) reported for Leap Motion in the identical task -- underlining the framework`s superior kinematic fidelity.  
+When the focus shifts to fine-grained finger-joint reconstruction, Maggioni \textit{et al.} \cite{maggioni2025optimisation} recorded a RMSE of just \(10.9^{\circ}\) joint angle error for MediaPipe -- comfortably below the \(14.7^{\circ}\) reported for Leap Motion in the identical task -- underlining the framework`s superior kinematic fidelity.
 
 Beyond pure motion capture, Lee \textit{et al.} \cite{lee2022explainable} have already integrated MediaPipe-derived landmarks into deep-learning pipelines for sEMG-based gesture recognition, further reinforcing its value as a dependable, high-quality data source for multimodal research and practical applications.
 
@@ -59,10 +59,10 @@ S\^{i}mpetru \textit{et~al.} (2022) recorded signals from a \textit{320-electrod
 
 Because the network was tuned specifically for this dense layout, it includes layers such as learnable synthetic-muscle-unit (SMU) activations, 3-D convolutions that span multiple electrode patches, and a parallel low-pass EMG branch to boost noise robustness. Even with these extras, SensingDynamics remains the most parameter-efficient of the three baselines -- only a handful of convolutional blocks plus a small MLP. That compactness, however, comes with a trade-off: on the larger cross-user benchmark it lags behind the other models, posting roughly \textbf{27.2 mm} mean fingertip error in the unseen-user-and-stage split -- versus 24.9 mm for NeuroPose and 21.6 mm for VEMG2Pose. In short, its streamlined architecture excels on its original high-density, per-user data but struggles to capture the fuller signal complexity required for broad generalisation.
 
-All three baseline models were re-examined under a single evaluation pipeline in the EMG2Pose study \cite{salter2024emg2pose}, after being retrained on the project`s full corpus of roughly \(\sim\!80\) million frames from 193 participants. The head-to-head results highlight three main takeaways.  
-\textbf{First}, networks that treat temporal dynamics explicitly -- as VEMG2Pose does through its velocity-integration loop -- deliver smoother trajectories and lower errors.  
-\textbf{Second}, generalisation hinges on both model capacity and data scale: SensingDynamics, although highly accurate in its original per-user, high-density setting, falls behind on this broader, more varied dataset.  
-\textbf{Third}, interpretability add-ons -- for example, the channel-wise attention in newer NeuroPose variants -- are becoming essential for diagnosing and refining EMG-to-pose pipelines.  
+All three baseline models were re-examined under a single evaluation pipeline in the EMG2Pose study \cite{salter2024emg2pose}, after being retrained on the project`s full corpus of roughly \(\sim\!80\) million frames from 193 participants. The head-to-head results highlight three main takeaways.
+\textbf{First}, networks that treat temporal dynamics explicitly -- as VEMG2Pose does through its velocity-integration loop -- deliver smoother trajectories and lower errors.
+\textbf{Second}, generalisation hinges on both model capacity and data scale: SensingDynamics, although highly accurate in its original per-user, high-density setting, falls behind on this broader, more varied dataset.
+\textbf{Third}, interpretability add-ons -- for example, the channel-wise attention in newer NeuroPose variants -- are becoming essential for diagnosing and refining EMG-to-pose pipelines.
 
 Informed by these lessons, the present work introduces an \emph{adaptive spatio-temporal sampling} block that automatically highlights the most informative electrodes and time windows on a per-instance basis, aiming to boost intra-user robustness and enhance overall decoding reliability.
 
@@ -73,7 +73,7 @@ Despite rapid progress, sEMG-based hand-pose tracking still suffers from three
 core deficiencies: (i) uncertainty over how much performance can be squeezed
 from \emph{low-cost hardware}, (ii) lack of a principled way to \emph{sample
 spatiotemporal structure} in the EMG stream, and (iii) dataset practices that
-let a network "guess" future motion from kinematic continuity alone.  
+let a network "guess" future motion from kinematic continuity alone.
 The thesis addresses these deficits and frames them as the following research
 questions (\textbf{RQ-A}, \textbf{RQ-B}, \textbf{RQ-C}).
 
@@ -81,13 +81,13 @@ questions (\textbf{RQ-A}, \textbf{RQ-B}, \textbf{RQ-C}).
 
 State-of-the-art datasets rely on \(>\)\$20 k motion-capture volumes and
 precision sEMG amplifiers; such equipment is unattainable for many research
-groups.  It remains unclear how far a frugal rig can go before sensor noise,
+groups. It remains unclear how far a frugal rig can go before sensor noise,
 latency, or clock drift erase the gains of better algorithms.
 
 \begin{description}[style=unboxed,leftmargin=0pt]
 \item[\textbf{RQ-A}] \emph{How well can an inexpensive, four-webcam optical
       setup and a \$40 Seeeduino-based sEMG board support millimetre-accurate
-      hand tracking?}  At what point does hardware noise—not model capacity
+      hand tracking?} At what point does hardware noise—not model capacity
       become the performance bottleneck?
 \end{description}
 
@@ -105,7 +105,7 @@ context. This wastes computation and obscures physiological meaning.
 
 \subsection*{Gap 3 — Dataset bias toward scripted motion}
 
-Short, repetitive gestures dominate public corpora.  A model can overfit by
+Short, repetitive gestures dominate public corpora. A model can overfit by
 extrapolating smooth joint trajectories rather than attending to EMG. Long,
 unscripted motion is needed to force genuine neuromuscular decoding.
 
